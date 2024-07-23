@@ -1,6 +1,6 @@
 rootProject.name = "oraxen"
 
-pluginManagement {
+/*pluginManagement {
     repositories {
         gradlePluginPortal()
         maven("https://repo.papermc.io/repository/maven-public/")
@@ -14,19 +14,22 @@ pluginManagement {
                 useVersion(idofrontVersion)
         }
     }
-}
+}*/
 
 dependencyResolutionManagement {
-    val idofrontVersion: String by settings
+    //val idofrontVersion: String by settings
 
-    repositories {
-        maven("https://repo.mineinabyss.com/releases")
+    /*repositories {
+        maven {
+            name = "madeinabyssReleases"
+            url = uri("https://repo.mineinabyss.com/releases")
+        }
         maven("https://repo.mineinabyss.com/snapshots")
         mavenLocal()
-    }
+    }*/
 
     versionCatalogs {
-        create("libs").from("com.mineinabyss:catalog:$idofrontVersion")
+        //create("libs").from("com.mineinabyss:catalog:$idofrontVersion")
         create("eLibs").from(files("gradle/oraxenLibs.versions.toml"))
     }
 }
@@ -35,7 +38,6 @@ include(
     "core",
     "v1_18_R1",
     "v1_18_R2",
-    "v1_19_R1",
     "v1_19_R2",
     "v1_19_R3",
     "v1_20_R1",

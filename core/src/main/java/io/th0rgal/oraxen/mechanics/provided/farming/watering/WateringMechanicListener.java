@@ -1,5 +1,6 @@
 package io.th0rgal.oraxen.mechanics.provided.farming.watering;
 
+import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.mechanics.MechanicFactory;
@@ -40,24 +41,26 @@ public class WateringMechanicListener implements Listener {
         ItemStack item = player.getInventory().getItemInMainHand();
         String itemId = OraxenItems.getIdByItem(item);
         WateringMechanic mechanic = (WateringMechanic) factory.getMechanic(itemId);
-        Block targetBlock = player.getTargetBlockExact(5, FluidCollisionMode.SOURCE_ONLY);
 
-        if (item.getType() == Material.AIR || factory.isNotImplementedIn(itemId) || !mechanic.isEmpty()) return;
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || block == null) return;
+        player.getScheduler().run(OraxenPlugin.get(), wp -> {
+            Block targetBlock = player.getTargetBlockExact(5, FluidCollisionMode.SOURCE_ONLY);
+            if (item.getType() == Material.AIR || factory.isNotImplementedIn(itemId) || !mechanic.isEmpty()) return;
+            if (event.getAction() != Action.RIGHT_CLICK_BLOCK || block == null) return;
 
-        if (targetBlock != null && targetBlock.getType() == Material.WATER) {
-            player.getInventory().setItemInMainHand(OraxenItems.getItemById(mechanic.getFilledCanItem()).build());
-            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BUCKET_FILL, 1.0f, 1.0f);
-        }
+            if (targetBlock != null && targetBlock.getType() == Material.WATER) {
+                player.getInventory().setItemInMainHand(OraxenItems.getItemById(mechanic.getFilledCanItem()).build());
+                player.getWorld().playSound(player.getLocation(), Sound.ITEM_BUCKET_FILL, 1.0f, 1.0f);
+            }
 
-        if (block.getType() == Material.WATER_CAULDRON) {
-            Levelled cauldron = (Levelled) block.getBlockData();
-            if (cauldron.getLevel() == 1) return;
-            cauldron.setLevel(cauldron.getLevel()-1);
-            block.setBlockData(cauldron);
-            player.getInventory().setItemInMainHand(OraxenItems.getItemById(mechanic.getFilledCanItem()).build());
-            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BUCKET_FILL, 1.0f, 1.0f);
-        }
+            if (block.getType() == Material.WATER_CAULDRON) {
+                Levelled cauldron = (Levelled) block.getBlockData();
+                if (cauldron.getLevel() == 1) return;
+                cauldron.setLevel(cauldron.getLevel()-1);
+                block.setBlockData(cauldron);
+                player.getInventory().setItemInMainHand(OraxenItems.getItemById(mechanic.getFilledCanItem()).build());
+                player.getWorld().playSound(player.getLocation(), Sound.ITEM_BUCKET_FILL, 1.0f, 1.0f);
+            }
+        }, null);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

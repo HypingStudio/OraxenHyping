@@ -4,12 +4,12 @@ import java.util.*
 
 plugins {
     id("java")
-    //id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     id("xyz.jpenilla.run-paper") version "2.2.0"
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0" // Generates plugin.yml
     id("io.papermc.paperweight.userdev") version "1.5.11" apply false
-    alias(libs.plugins.shadowjar)
-    alias(libs.plugins.mia.publication)
+   // alias(libs.plugins.shadowjar)
+    //alias(libs.plugins.mia.publication)
 }
 
 class NMSVersion(val nmsVersion: String, val serverVersion: String)
@@ -17,7 +17,6 @@ infix fun String.toNms(that: String): NMSVersion = NMSVersion(this, that)
 val SUPPORTED_VERSIONS: List<NMSVersion> = listOf(
     "v1_18_R1" toNms "1.18.1-R0.1-SNAPSHOT",
     "v1_18_R2" toNms "1.18.2-R0.1-SNAPSHOT",
-    "v1_19_R1" toNms "1.19.2-R0.1-SNAPSHOT",
     "v1_19_R2" toNms "1.19.3-R0.1-SNAPSHOT",
     "v1_19_R3" toNms "1.19.4-R0.1-SNAPSHOT",
     "v1_20_R1" toNms "1.20.1-R0.1-SNAPSHOT",
@@ -197,7 +196,7 @@ tasks {
 
     compileJava.get().dependsOn(clean)
     build.get().dependsOn(shadowJar)
-    build.get().dependsOn(publishToMavenLocal)
+    //build.get().dependsOn(publishToMavenLocal)
 }
 
 bukkit {
