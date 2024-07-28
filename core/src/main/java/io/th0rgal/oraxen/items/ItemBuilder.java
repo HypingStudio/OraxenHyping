@@ -24,11 +24,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.TropicalFish;
 import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
-import org.bukkit.inventory.meta.components.FoodComponent;
-import org.bukkit.inventory.meta.components.JukeboxPlayableComponent;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
@@ -74,9 +71,7 @@ public class ItemBuilder {
     private List<String> lore;
     private ItemStack finalItemStack;
 
-    // 1.20.5+ properties
-    @Nullable
-    private FoodComponent foodComponent;
+
     @Nullable
     private Boolean enchantmentGlintOverride;
     @Nullable
@@ -88,15 +83,9 @@ public class ItemBuilder {
     @Nullable
     private Boolean hideToolTips;
     @Nullable
-    private ItemRarity rarity;
-    @Nullable
     private Integer durability;
     private boolean damagedOnBlockBreak;
     private boolean damagedOnEntityHit;
-
-    // 1.21+ properties
-    @Nullable
-    private JukeboxPlayableComponent jukeboxPlayable;
 
 
     public ItemBuilder(final Material material) {
@@ -180,28 +169,6 @@ public class ItemBuilder {
         persistentDataContainer = itemMeta.getPersistentDataContainer();
 
         enchantments = new HashMap<>();
-
-        if (VersionUtil.atOrAbove("1.20.5")) {
-            if (itemMeta.hasItemName()) {
-                if (VersionUtil.isPaperServer())
-                    itemName = AdventureUtils.MINI_MESSAGE.serialize(itemMeta.itemName());
-                else itemName = itemMeta.getItemName();
-            } else itemName = null;
-
-            durability = (itemMeta instanceof Damageable damageable) && damageable.hasMaxDamage() ? damageable.getMaxDamage() : null;
-            fireResistant = itemMeta.isFireResistant() ? true : null;
-            hideToolTips = itemMeta.isHideTooltip() ? true : null;
-            foodComponent = itemMeta.hasFood() ? itemMeta.getFood() : null;
-            enchantmentGlintOverride = itemMeta.hasEnchantmentGlintOverride() ? itemMeta.getEnchantmentGlintOverride() : null;
-            rarity = itemMeta.hasRarity() ? itemMeta.getRarity() : null;
-            maxStackSize = itemMeta.hasMaxStackSize() ? itemMeta.getMaxStackSize() : null;
-            if (maxStackSize != null && maxStackSize == 1) unstackable = true;
-        }
-
-        if (VersionUtil.atOrAbove("1.21")) {
-            jukeboxPlayable = itemMeta.hasJukeboxPlayable() ? itemMeta.getJukeboxPlayable() : null;
-        }
-
     }
 
     public Material getType() {
@@ -339,34 +306,6 @@ public class ItemBuilder {
         return this;
     }
 
-    public boolean hasFoodComponent() {
-        return VersionUtil.atOrAbove("1.20.5") && foodComponent != null;
-    }
-
-    @Nullable
-    public FoodComponent getFoodComponent() {
-        return foodComponent;
-    }
-
-    public ItemBuilder setFoodComponent(FoodComponent foodComponent) {
-        this.foodComponent = foodComponent;
-        return this;
-    }
-
-    public boolean hasJukeboxPlayable() {
-        return VersionUtil.atOrAbove("1.21") && jukeboxPlayable != null;
-    }
-
-    @Nullable
-    public JukeboxPlayableComponent getJukeboxPlayable() {
-        return jukeboxPlayable;
-    }
-
-    public ItemBuilder setJukeboxPlayable(JukeboxPlayableComponent jukeboxPlayable) {
-        this.jukeboxPlayable = jukeboxPlayable;
-        return this;
-    }
-
     public boolean hasEnchantmentGlindOverride() {
         return VersionUtil.atOrAbove("1.20.5") && enchantmentGlintOverride != null;
     }
@@ -382,17 +321,7 @@ public class ItemBuilder {
     }
 
     public boolean hasRarity() {
-        return VersionUtil.atOrAbove("1.20.5") && rarity != null;
-    }
-
-    @Nullable
-    public ItemRarity getRarity() {
-        return rarity;
-    }
-
-    public ItemBuilder setRarity(@Nullable ItemRarity rarity) {
-        this.rarity = rarity;
-        return this;
+        return false;
     }
 
     public ItemBuilder setFireResistant(boolean fireResistant) {
@@ -556,25 +485,6 @@ public class ItemBuilder {
             itemStack.setAmount(amount);
 
         ItemMeta itemMeta = itemStack.getItemMeta();
-
-        // 1.20.5+ properties
-        if (VersionUtil.atOrAbove("1.20.5")) {
-            if (itemMeta instanceof Damageable damageable) damageable.setMaxDamage(durability);
-            if (hasItemName()) {
-                if (VersionUtil.isPaperServer()) itemMeta.itemName(AdventureUtils.MINI_MESSAGE.deserialize(itemName));
-                else itemMeta.setItemName(itemName);
-            }
-            if (hasMaxStackSize()) itemMeta.setMaxStackSize(maxStackSize);
-            if (hasEnchantmentGlindOverride()) itemMeta.setEnchantmentGlintOverride(enchantmentGlintOverride);
-            if (hasRarity()) itemMeta.setRarity(rarity);
-            if (hasFoodComponent()) itemMeta.setFood(foodComponent);
-            if (fireResistant != null) itemMeta.setFireResistant(fireResistant);
-            if (hideToolTips != null) itemMeta.setHideTooltip(hideToolTips);
-        }
-
-        if (VersionUtil.atOrAbove("1.21")) {
-            if (hasJukeboxPlayable()) itemMeta.setJukeboxPlayable(jukeboxPlayable);
-        }
 
         handleVariousMeta(itemMeta);
         itemMeta.setUnbreakable(unbreakable);

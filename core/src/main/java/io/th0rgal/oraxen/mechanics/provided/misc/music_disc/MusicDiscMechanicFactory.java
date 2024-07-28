@@ -8,7 +8,6 @@ import io.th0rgal.oraxen.utils.VersionUtil;
 import io.th0rgal.oraxen.utils.logs.Logs;
 import org.bukkit.configuration.ConfigurationSection;
 
-@Deprecated(forRemoval = true, since = "1.21")
 public class MusicDiscMechanicFactory extends MechanicFactory {
 
     public MusicDiscMechanicFactory(ConfigurationSection section) {

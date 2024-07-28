@@ -93,7 +93,7 @@ public class ItemUpdater implements Listener {
 
         if (!VersionUtil.atOrAbove("1.20.5") || player.getGameMode() == GameMode.CREATIVE) return;
         if (ItemUtils.isEmpty(itemStack) || ItemUtils.isTool(itemStack)) return;
-        if (!(itemStack.getItemMeta() instanceof Damageable damageable) || !damageable.hasMaxDamage()) return;
+        if (!(itemStack.getItemMeta() instanceof Damageable damageable)) return;
 
         Optional.ofNullable(OraxenItems.getBuilderByItem(itemStack)).ifPresent(i -> {
                 if (i.isDamagedOnBlockBreak()) itemStack.damage(1, player);
@@ -107,7 +107,7 @@ public class ItemUpdater implements Listener {
 
         if (entity instanceof Player player && player.getGameMode() == GameMode.CREATIVE) return;
         if (ItemUtils.isEmpty(itemStack) || ItemUtils.isTool(itemStack)) return;
-        if (!(itemStack.getItemMeta() instanceof Damageable damageable) || !damageable.hasMaxDamage()) return;
+        if (!(itemStack.getItemMeta() instanceof Damageable damageable)) return;
 
         Optional.ofNullable(OraxenItems.getBuilderByItem(itemStack)).ifPresent(i -> {
             if (i.isDamagedOnEntityHit()) itemStack.damage(1, entity);
@@ -190,30 +190,6 @@ public class ItemUpdater implements Listener {
 
             if (VersionUtil.atOrAbove("1.20") && itemMeta instanceof ArmorMeta armorMeta && oldMeta instanceof ArmorMeta oldArmorMeta) {
                 armorMeta.setTrim(oldArmorMeta.getTrim());
-            }
-
-            if (VersionUtil.atOrAbove("1.20.5")) {
-                if (newMeta.hasFood()) itemMeta.setFood(newMeta.getFood());
-                else if (oldMeta.hasFood()) itemMeta.setFood(oldMeta.getFood());
-
-                if (newMeta.hasEnchantmentGlintOverride()) itemMeta.setEnchantmentGlintOverride(newMeta.getEnchantmentGlintOverride());
-                else if (oldMeta.hasEnchantmentGlintOverride()) itemMeta.setEnchantmentGlintOverride(oldMeta.getEnchantmentGlintOverride());
-
-                if (newMeta.hasMaxStackSize()) itemMeta.setMaxStackSize(newMeta.getMaxStackSize());
-                else if (oldMeta.hasMaxStackSize()) itemMeta.setMaxStackSize(oldMeta.getMaxStackSize());
-
-                if (VersionUtil.isPaperServer()) {
-                    if (newMeta.hasItemName()) itemMeta.itemName(newMeta.itemName());
-                    else if (oldMeta.hasItemName()) itemMeta.itemName(oldMeta.itemName());
-                } else {
-                    if (newMeta.hasItemName()) itemMeta.setItemName(newMeta.getItemName());
-                    else if (oldMeta.hasItemName()) itemMeta.setItemName(oldMeta.getItemName());
-                }
-            }
-
-            if (VersionUtil.atOrAbove("1.21")) {
-                if (newMeta.hasJukeboxPlayable()) itemMeta.setJukeboxPlayable(newMeta.getJukeboxPlayable());
-                else if (oldMeta.hasJukeboxPlayable()) itemMeta.setJukeboxPlayable(oldMeta.getJukeboxPlayable());
             }
 
             // On 1.20.5+ we use ItemName which is different from userchanged displaynames

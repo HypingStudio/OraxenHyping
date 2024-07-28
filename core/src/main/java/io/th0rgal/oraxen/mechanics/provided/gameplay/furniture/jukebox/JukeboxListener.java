@@ -122,12 +122,7 @@ public class JukeboxListener implements Listener {
 
     @Nullable
     private Key getSongFromDisc(ItemStack disc) {
-        if (VersionUtil.atOrAbove("1.21")) {
-            return disc.hasItemMeta() && disc.getItemMeta().hasJukeboxPlayable()
-                    ? disc.getItemMeta().getJukeboxPlayable().getSongKey().key()
-                    : null;
-        } else {
-            return Key.key("minecraft", "music_disc." + disc.getType().toString().toLowerCase(Locale.ROOT).split("music_disc_")[1]);
-        }
+        return Key.key("minecraft", "music_disc." + disc.getType().toString().toLowerCase(Locale.ROOT).split("music_disc_")[1]);
+
     }
 }

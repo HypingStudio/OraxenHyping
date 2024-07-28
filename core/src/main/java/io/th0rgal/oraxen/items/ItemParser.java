@@ -22,10 +22,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.components.FoodComponent;
-import org.bukkit.inventory.meta.components.JukeboxPlayableComponent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -129,55 +126,16 @@ public class ItemParser {
         ConfigurationSection components = section.getConfigurationSection("Components");
         if (components == null || !VersionUtil.atOrAbove("1.20.5")) return;
 
-        if (components.contains("max_stack_size")) item.setMaxStackSize(Math.clamp(components.getInt("max_stack_size"), 1, 99));
-
         if (components.contains("enchantment_glint_override")) item.setEnchantmentGlindOverride(components.getBoolean("enchantment_glint_override"));
         if (components.contains("durability")) {
             item.setDamagedOnBlockBreak(components.getBoolean("durability.damage_block_break"));
             item.setDamagedOnEntityHit(components.getBoolean("durability.damage_entity_hit"));
             item.setDurability(Math.max(components.getInt("durability.value"), components.getInt("durability", 1)));
         }
-        if (components.contains("rarity")) item.setRarity(ItemRarity.valueOf(components.getString("rarity")));
         if (components.contains("fire_resistant")) item.setFireResistant(components.getBoolean("fire_resistant"));
         if (components.contains("hide_tooltips")) item.setHideToolTips(components.getBoolean("hide_tooltips"));
 
-        ConfigurationSection foodSection = components.getConfigurationSection("food");
-        if (foodSection != null) {
-            FoodComponent foodComponent = new ItemStack(Material.PAPER).getItemMeta().getFood();
-            foodComponent.setNutrition(foodSection.getInt("nutrition"));
-            foodComponent.setSaturation((float) foodSection.getDouble("saturation", 0.0));
-            foodComponent.setCanAlwaysEat(foodSection.getBoolean("can_always_eat"));
-            foodComponent.setEatSeconds((float) foodSection.getDouble("eat_seconds", 1.6));
 
-            ConfigurationSection effectsSection = foodSection.getConfigurationSection("effects");
-            if (effectsSection != null) for (String effect : effectsSection.getKeys(false)) {
-                PotionEffectType effectType = PotionUtils.getEffectType(effect);
-                if (effectType == null)
-                    Logs.logError("Invalid potion effect: " + effect + ", in " + StringUtils.substringBefore(effectsSection.getCurrentPath(), ".") + " food-property!");
-                else {
-                    foodComponent.addEffect(
-                            new PotionEffect(effectType,
-                                    foodSection.getInt("duration", 1) * 20,
-                                    foodSection.getInt("amplifier", 0),
-                                    foodSection.getBoolean("ambient", true),
-                                    foodSection.getBoolean("show_particles", true),
-                                    foodSection.getBoolean("show_icon", true)),
-                            (float) foodSection.getDouble("probability", 1.0)
-                    );
-                }
-            }
-            item.setFoodComponent(foodComponent);
-        }
-
-        if (!VersionUtil.atOrAbove("1.21")) return;
-
-        ConfigurationSection jukeboxSection = components.getConfigurationSection("jukebox_playable");
-        if (jukeboxSection != null) {
-            JukeboxPlayableComponent jukeboxPlayable = new ItemStack(Material.MUSIC_DISC_CREATOR).getItemMeta().getJukeboxPlayable();
-            jukeboxPlayable.setShowInTooltip(jukeboxSection.getBoolean("show_in_tooltip"));
-            jukeboxPlayable.setSongKey(NamespacedKey.fromString(jukeboxSection.getString("song_key")));
-            item.setJukeboxPlayable(jukeboxPlayable);
-        }
     }
 
     private void parseMiscOptions(ItemBuilder item) {

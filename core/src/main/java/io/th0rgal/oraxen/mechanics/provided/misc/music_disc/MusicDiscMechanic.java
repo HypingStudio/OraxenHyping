@@ -4,7 +4,6 @@ import io.th0rgal.oraxen.mechanics.Mechanic;
 import io.th0rgal.oraxen.mechanics.MechanicFactory;
 import org.bukkit.configuration.ConfigurationSection;
 
-@Deprecated(forRemoval = true, since = "1.21")
 public class MusicDiscMechanic extends Mechanic {
     private final String song;
 

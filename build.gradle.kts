@@ -17,16 +17,11 @@ plugins {
 class NMSVersion(val nmsVersion: String, val serverVersion: String)
 infix fun String.toNms(that: String): NMSVersion = NMSVersion(this, that)
 val SUPPORTED_VERSIONS: List<NMSVersion> = listOf(
-    "v1_18_R1" toNms "1.18.1-R0.1-SNAPSHOT",
-    "v1_18_R2" toNms "1.18.2-R0.1-SNAPSHOT",
-    "v1_19_R2" toNms "1.19.3-R0.1-SNAPSHOT",
-    "v1_19_R3" toNms "1.19.4-R0.1-SNAPSHOT",
     "v1_20_R1" toNms "1.20.1-R0.1-SNAPSHOT",
     "v1_20_R2" toNms "1.20.2-R0.1-SNAPSHOT",
-    "v1_20_R3" toNms "1.20.4-R0.1-SNAPSHOT"
     "v1_20_R3" toNms "1.20.4-R0.1-SNAPSHOT",
-    "v1_20_R4" toNms "1.20.6-R0.1-SNAPSHOT",
-    "v1_21_R1" toNms "1.21-R0.1-SNAPSHOT"
+    //"v1_20_R4" toNms "1.20.6-R0.1-SNAPSHOT",
+    //"v1_21_R1" toNms "1.21-R0.1-SNAPSHOT"
 )
 
 val compiled = (project.findProperty("oraxen_compiled")?.toString() ?: "true").toBoolean()
@@ -47,6 +42,7 @@ allprojects {
     apply(plugin = "java")
     repositories {
         mavenCentral()
+        mavenLocal()
 
         maven("https://papermc.io/repo/repository/maven-public/") // Paper
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") // Spigot
@@ -60,20 +56,18 @@ allprojects {
         maven("https://mvn.lumine.io/repository/maven-public/") { metadataSources { artifact() } }// MythicMobs
         maven("https://repo.mineinabyss.com/releases") // PlayerAnimator
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots") // commandAPI snapshots
-        maven("https://repo.auxilor.io/repository/maven-public/") // EcoItems
+       // maven("https://repo.auxilor.io/repository/maven-public/") // EcoItems
         maven("https://maven.enginehub.org/repo/")
         maven("https://repo.oraxen.com/releases")
         maven("https://repo.oraxen.com/snapshots")
         maven("https://jitpack.io") // JitPack
         maven("https://nexus.phoenixdevt.fr/repository/maven-public/") // MMOItems
         maven("https://repo.codemc.org/repository/maven-public/") // BlockLocker
-
-        mavenLocal()
+        //maven("https://mvn.lumine.io/repository/maven-public/")
     }
 
     dependencies {
         val actionsVersion = "1.0.0-SNAPSHOT"
-        compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
         compileOnly("gs.mclo:java:2.2.1")
 
         compileOnly("net.kyori:adventure-text-minimessage:$adventureVersion")
@@ -84,7 +78,7 @@ allprojects {
         compileOnly("me.clip:placeholderapi:2.11.4")
         compileOnly("me.gabytm.util:actions-core:$actionsVersion")
         compileOnly("org.springframework:spring-expression:6.0.6")
-        compileOnly("io.lumine:Mythic-Dist:5.7.0-SNAPSHOT")
+        compileOnly("io.lumine:Mythic-Dist:5.6.1")
         compileOnly("io.lumine:MythicCrucible:1.6.0-SNAPSHOT")
         compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.9")
         compileOnly("commons-io:commons-io:2.11.0")
@@ -92,7 +86,6 @@ allprojects {
         compileOnly("com.ticxo.modelengine:ModelEngine:R4.0.4")
         compileOnly("com.ticxo.modelengine:api:R3.1.8")
         compileOnly(files("../libs/compile/BSP.jar"))
-        compileOnly("dev.jorel:commandapi-bukkit-shade:$commandApiVersion")
         compileOnly("io.lumine:MythicLib:1.1.6") // Remove and add deps needed for Polymath
         compileOnly("io.lumine:MythicLib-dist:1.6.2-SNAPSHOT")
         compileOnly("net.Indyuce:MMOItems-API:6.9.5-SNAPSHOT")
@@ -102,6 +95,9 @@ allprojects {
         compileOnly("com.willfp:libreforge:4.36.0")
         compileOnly("nl.rutgerkok:blocklocker:1.10.4-SNAPSHOT")
         compileOnly("org.apache.commons:commons-lang3:$apacheLang3Version")
+
+        // https://mvnrepository.com/artifact/com.willfp/libreforge
+        implementation("com.willfp:libreforge:4.63.1")
 
         implementation(files("../libs/CommandAPI-9.5.0-SNAPSHOT.jar"))
         //implementation("dev.jorel:commandapi-bukkit-shade:$commandApiVersion")
@@ -126,14 +122,13 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks {
 
     compileJava {
         options.encoding = Charsets.UTF_8.name()
-        options.release.set(17)
     }
 
     javadoc {
@@ -190,7 +185,7 @@ tasks {
 
     compileJava.get().dependsOn(clean)
     build.get().dependsOn(shadowJar)
-    //build.get().dependsOn(publishToMavenLocal)
+    build.get().dependsOn(publishToMavenLocal)
 }
 
 bukkit {
@@ -215,7 +210,6 @@ bukkit {
     libraries = listOf(
         "org.springframework:spring-expression:6.0.6",
         "org.apache.httpcomponents:httpmime:4.5.13",
-        "dev.jorel:commandapi-bukkit-shade:$commandApiVersion",
         "org.joml:joml:1.10.5",
         "net.kyori:adventure-text-minimessage:$adventureVersion",
         "net.kyori:adventure-text-serializer-plain:$adventureVersion",
@@ -276,4 +270,3 @@ if (pluginPath != null) {
         )
     }
 }
-
