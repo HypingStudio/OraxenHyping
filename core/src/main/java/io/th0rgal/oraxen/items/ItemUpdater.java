@@ -8,26 +8,28 @@ import io.th0rgal.oraxen.nms.NMSHandlers;
 import io.th0rgal.oraxen.utils.AdventureUtils;
 import io.th0rgal.oraxen.utils.ItemUtils;
 import io.th0rgal.oraxen.utils.VersionUtil;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.persistence.PersistentDataContainer;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static io.th0rgal.oraxen.items.ItemBuilder.ORIGINAL_NAME_KEY;
 import static io.th0rgal.oraxen.items.ItemBuilder.UNSTACKABLE_KEY;
@@ -84,6 +86,34 @@ public class ItemUpdater implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onUseMaxDamageItem(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        ItemStack itemStack = player.getInventory().getItemInMainHand();
+
+        if (!VersionUtil.atOrAbove("1.20.5") || player.getGameMode() == GameMode.CREATIVE) return;
+        if (ItemUtils.isEmpty(itemStack) || ItemUtils.isTool(itemStack)) return;
+        if (!(itemStack.getItemMeta() instanceof Damageable damageable) || !damageable.hasMaxDamage()) return;
+
+        Optional.ofNullable(OraxenItems.getBuilderByItem(itemStack)).ifPresent(i -> {
+                if (i.isDamagedOnBlockBreak()) itemStack.damage(1, player);
+        });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onUseMaxDamageItem(EntityDamageByEntityEvent event) {
+        if (!VersionUtil.atOrAbove("1.20.5") || !(event.getDamager() instanceof LivingEntity entity)) return;
+        ItemStack itemStack = Optional.ofNullable(entity.getEquipment()).map(EntityEquipment::getItemInMainHand).orElse(null);
+
+        if (entity instanceof Player player && player.getGameMode() == GameMode.CREATIVE) return;
+        if (ItemUtils.isEmpty(itemStack) || ItemUtils.isTool(itemStack)) return;
+        if (!(itemStack.getItemMeta() instanceof Damageable damageable) || !damageable.hasMaxDamage()) return;
+
+        Optional.ofNullable(OraxenItems.getBuilderByItem(itemStack)).ifPresent(i -> {
+            if (i.isDamagedOnEntityHit()) itemStack.damage(1, entity);
+        });
+    }
+
     private static final NamespacedKey IF_UUID = Objects.requireNonNull(NamespacedKey.fromString("oraxen:if-uuid"));
     private static final NamespacedKey MF_GUI = Objects.requireNonNull(NamespacedKey.fromString("oraxen:mf-gui"));
     public static ItemStack updateItem(ItemStack oldItem) {
@@ -121,7 +151,7 @@ public class ItemUpdater implements Listener {
             for (Map.Entry<Enchantment, Integer> entry : newMeta.getEnchants().entrySet().stream().filter(e -> !oldMeta.getEnchants().containsKey(e.getKey())).toList())
                 itemMeta.addEnchant(entry.getKey(), entry.getValue(), true);
 
-            int cmd = newMeta.hasCustomModelData() ? newMeta.getCustomModelData() : oldMeta.hasCustomModelData() ? oldMeta.getCustomModelData() : 0;
+            Integer cmd = newMeta.hasCustomModelData() ? (Integer) newMeta.getCustomModelData() : oldMeta.hasCustomModelData() ? (Integer) oldMeta.getCustomModelData() : null;
             itemMeta.setCustomModelData(cmd);
 
             // If OraxenItem has no lore, we should assume that 3rd-party plugin has added lore
@@ -130,7 +160,7 @@ public class ItemUpdater implements Listener {
 
             // Only change AttributeModifiers if the new item has some
             if (newMeta.hasAttributeModifiers()) itemMeta.setAttributeModifiers(newMeta.getAttributeModifiers());
-            else itemMeta.setAttributeModifiers(oldMeta.getAttributeModifiers());
+            else if (oldMeta.hasAttributeModifiers()) itemMeta.setAttributeModifiers(oldMeta.getAttributeModifiers());
 
             // Transfer over durability from old item
             if (itemMeta instanceof Damageable damageable && oldMeta instanceof Damageable oldDmg) {
@@ -162,20 +192,60 @@ public class ItemUpdater implements Listener {
                 armorMeta.setTrim(oldArmorMeta.getTrim());
             }
 
-            // Parsing with legacy here to fix any inconsistensies caused by server serializers etc
-            String oldDisplayName = AdventureUtils.parseLegacy(oldMeta.getDisplayName());
-            String originalName = AdventureUtils.parseLegacy(oldPdc.getOrDefault(ORIGINAL_NAME_KEY, DataType.STRING, ""));
-            if (Settings.OVERRIDE_RENAMED_ITEMS.toBool()) {
-                itemMeta.setDisplayName(newMeta.getDisplayName());
-            } else if (!originalName.equals(oldDisplayName)) {
-                itemMeta.setDisplayName(oldMeta.getDisplayName());
-            } else {
-                itemMeta.setDisplayName(newMeta.getDisplayName());
+            if (VersionUtil.atOrAbove("1.20.5")) {
+                if (newMeta.hasFood()) itemMeta.setFood(newMeta.getFood());
+                else if (oldMeta.hasFood()) itemMeta.setFood(oldMeta.getFood());
+
+                if (newMeta.hasEnchantmentGlintOverride()) itemMeta.setEnchantmentGlintOverride(newMeta.getEnchantmentGlintOverride());
+                else if (oldMeta.hasEnchantmentGlintOverride()) itemMeta.setEnchantmentGlintOverride(oldMeta.getEnchantmentGlintOverride());
+
+                if (newMeta.hasMaxStackSize()) itemMeta.setMaxStackSize(newMeta.getMaxStackSize());
+                else if (oldMeta.hasMaxStackSize()) itemMeta.setMaxStackSize(oldMeta.getMaxStackSize());
+
+                if (VersionUtil.isPaperServer()) {
+                    if (newMeta.hasItemName()) itemMeta.itemName(newMeta.itemName());
+                    else if (oldMeta.hasItemName()) itemMeta.itemName(oldMeta.itemName());
+                } else {
+                    if (newMeta.hasItemName()) itemMeta.setItemName(newMeta.getItemName());
+                    else if (oldMeta.hasItemName()) itemMeta.setItemName(oldMeta.getItemName());
+                }
             }
 
-            itemPdc.set(ORIGINAL_NAME_KEY, DataType.STRING, newMeta.getDisplayName());
+            if (VersionUtil.atOrAbove("1.21")) {
+                if (newMeta.hasJukeboxPlayable()) itemMeta.setJukeboxPlayable(newMeta.getJukeboxPlayable());
+                else if (oldMeta.hasJukeboxPlayable()) itemMeta.setJukeboxPlayable(oldMeta.getJukeboxPlayable());
+            }
+
+            // On 1.20.5+ we use ItemName which is different from userchanged displaynames
+            // Thus removing the need for this logic
+            if (!VersionUtil.atOrAbove("1.20.5")) {
+
+                String oldDisplayName = AdventureUtils.parseLegacy(VersionUtil.isPaperServer() ? AdventureUtils.MINI_MESSAGE.serialize(oldMeta.displayName()) : AdventureUtils.parseLegacy(oldMeta.getDisplayName()));
+                String originalName = AdventureUtils.parseLegacy(oldPdc.getOrDefault(ORIGINAL_NAME_KEY, DataType.STRING, ""));
+
+                if (Settings.OVERRIDE_RENAMED_ITEMS.toBool()) {
+                    if (VersionUtil.isPaperServer()) itemMeta.displayName(newMeta.displayName());
+                    else itemMeta.setDisplayName(newMeta.getDisplayName());
+                } else if (!originalName.equals(oldDisplayName)) {
+                    if (VersionUtil.isPaperServer()) itemMeta.displayName(oldMeta.displayName());
+                    else itemMeta.setDisplayName(oldMeta.getDisplayName());
+                } else {
+                    if (VersionUtil.isPaperServer()) itemMeta.displayName(newMeta.displayName());
+                    else itemMeta.setDisplayName(newMeta.getDisplayName());
+                }
+
+                originalName = newMeta.hasDisplayName() ? VersionUtil.isPaperServer()
+                        ? AdventureUtils.MINI_MESSAGE.serialize(newMeta.displayName())
+                        : newMeta.getDisplayName()
+                        : null;
+                if (originalName != null) itemPdc.set(ORIGINAL_NAME_KEY, DataType.STRING, originalName);
+            }
+
+
             // If the item is not unstackable, we should remove the unstackable tag
-            if (!newItemBuilder.isUnstackable()) itemPdc.remove(UNSTACKABLE_KEY);
+            // Also remove it on 1.20.5+ due to maxStackSize component
+            if (VersionUtil.atOrAbove("1.20.5") || !newItemBuilder.isUnstackable()) itemPdc.remove(UNSTACKABLE_KEY);
+            else itemPdc.set(UNSTACKABLE_KEY, DataType.UUID, UUID.randomUUID());
         });
 
         return newItem;

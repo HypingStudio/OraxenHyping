@@ -4,6 +4,7 @@ import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.config.Settings;
 import io.th0rgal.oraxen.recipes.CustomRecipe;
+import io.th0rgal.oraxen.utils.InventoryUtils;
 import io.th0rgal.oraxen.utils.VersionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -15,7 +16,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.*;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MerchantInventory;
+import org.bukkit.inventory.Recipe;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,8 +61,9 @@ public class RecipesEventsManager implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onCrafted(PrepareItemCraftEvent event) {
         Recipe recipe = event.getRecipe();
-        Player player = (Player) event.getView().getPlayer();
-        if (!hasPermission(player, CustomRecipe.fromRecipe(recipe))) event.getInventory().setResult(null);
+        CustomRecipe customRecipe = CustomRecipe.fromRecipe(recipe);
+        Player player = InventoryUtils.playerFromView(event);
+        if (!hasPermission(player, customRecipe)) event.getInventory().setResult(null);
 
         ItemStack result = event.getInventory().getResult();
         if (result == null) return;
@@ -66,10 +71,9 @@ public class RecipesEventsManager implements Listener {
         boolean containsOraxenItem = Arrays.stream(event.getInventory().getMatrix()).anyMatch(OraxenItems::exists);
         if (!containsOraxenItem || recipe == null) return;
 
-        CustomRecipe current = new CustomRecipe(null, recipe.getResult(), Arrays.asList(event.getInventory().getMatrix()));
-        if (whitelistedCraftRecipes.stream().anyMatch(current::equals) || current.isValidDyeRecipe()) return;
+        if (whitelistedCraftRecipes.stream().anyMatch(customRecipe::equals) || customRecipe.isValidDyeRecipe()) return;
 
-        event.getInventory().setResult(null);
+        event.getInventory().setResult(customRecipe.getResult());
     }
 
     @EventHandler

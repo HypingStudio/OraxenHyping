@@ -6,6 +6,7 @@ import io.th0rgal.oraxen.mechanics.provided.misc.itemtype.ItemTypeMechanic;
 import io.th0rgal.oraxen.mechanics.provided.misc.itemtype.ItemTypeMechanicFactory;
 import io.th0rgal.oraxen.utils.BlockHelpers;
 import io.th0rgal.oraxen.utils.ItemUtils;
+import io.th0rgal.oraxen.utils.wrappers.EnchantmentWrapper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -144,7 +145,7 @@ public class Drop {
         if (!canDrop(itemInHand) || !BlockHelpers.isLoaded(location)) return;
         ItemStack baseItem = OraxenItems.getItemById(sourceID).build();
 
-        if (silktouch && itemInHand.hasItemMeta() && itemInHand.getItemMeta().hasEnchant(Enchantment.SILK_TOUCH))
+        if (silktouch && itemInHand.hasItemMeta() && itemInHand.getItemMeta().hasEnchant(EnchantmentWrapper.SILK_TOUCH))
             location.getWorld().dropItemNaturally(BlockHelpers.toCenterBlockLocation(location), baseItem);
         else dropLoot(loots, location, getFortuneMultiplier(itemInHand));
     }
@@ -162,7 +163,7 @@ public class Drop {
         if (!canDrop(itemInHand) || !location.isWorldLoaded()) return;
         assert location.getWorld() != null;
 
-        if (silktouch && itemInHand.hasItemMeta() && itemInHand.getItemMeta().hasEnchant(Enchantment.SILK_TOUCH)) {
+        if (silktouch && itemInHand.hasItemMeta() && itemInHand.getItemMeta().hasEnchant(EnchantmentWrapper.SILK_TOUCH)) {
             location.getWorld().dropItemNaturally(BlockHelpers.toCenterBlockLocation(location), baseItem);
         } else {
             // Drop all the items that aren't the furniture item
@@ -181,8 +182,8 @@ public class Drop {
         if (itemInHand != null) {
             ItemMeta itemMeta = itemInHand.getItemMeta();
             if (itemMeta != null) {
-                if (fortune && itemMeta.hasEnchant(Enchantment.LOOT_BONUS_BLOCKS))
-                    fortuneMultiplier += ThreadLocalRandom.current().nextInt(itemMeta.getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS));
+                if (fortune && itemMeta.hasEnchant(EnchantmentWrapper.FORTUNE))
+                    fortuneMultiplier += ThreadLocalRandom.current().nextInt(itemMeta.getEnchantLevel(EnchantmentWrapper.FORTUNE));
             }
         }
         return fortuneMultiplier;
@@ -205,7 +206,7 @@ public class Drop {
             ItemStack item = loot.getItem(fortuneMultiplier);
 
             if (!canDrop(itemInHand) || item == null) continue;
-            if (ThreadLocalRandom.current().nextInt(loot.getProbability()) != 0) continue;
+            if (Math.random() > loot.getProbability()) continue;
 
             droppedLoots.add(loot);
         }

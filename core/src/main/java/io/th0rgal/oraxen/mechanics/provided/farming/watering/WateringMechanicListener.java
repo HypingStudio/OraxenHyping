@@ -1,6 +1,5 @@
 package io.th0rgal.oraxen.mechanics.provided.farming.watering;
 
-import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.mechanics.MechanicFactory;
@@ -8,9 +7,9 @@ import io.th0rgal.oraxen.mechanics.provided.gameplay.noteblock.NoteBlockMechanic
 import io.th0rgal.oraxen.mechanics.provided.gameplay.noteblock.NoteBlockMechanicFactory;
 import io.th0rgal.oraxen.mechanics.provided.gameplay.noteblock.farmblock.FarmBlockDryout;
 import io.th0rgal.oraxen.utils.BlockHelpers;
+import io.th0rgal.oraxen.utils.wrappers.ParticleWrapper;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Levelled;
@@ -41,26 +40,24 @@ public class WateringMechanicListener implements Listener {
         ItemStack item = player.getInventory().getItemInMainHand();
         String itemId = OraxenItems.getIdByItem(item);
         WateringMechanic mechanic = (WateringMechanic) factory.getMechanic(itemId);
+        Block targetBlock = player.getTargetBlockExact(5, FluidCollisionMode.SOURCE_ONLY);
 
-        player.getScheduler().run(OraxenPlugin.get(), wp -> {
-            Block targetBlock = player.getTargetBlockExact(5, FluidCollisionMode.SOURCE_ONLY);
-            if (item.getType() == Material.AIR || factory.isNotImplementedIn(itemId) || !mechanic.isEmpty()) return;
-            if (event.getAction() != Action.RIGHT_CLICK_BLOCK || block == null) return;
+        if (item.getType() == Material.AIR || factory.isNotImplementedIn(itemId) || !mechanic.isEmpty()) return;
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || block == null) return;
 
-            if (targetBlock != null && targetBlock.getType() == Material.WATER) {
-                player.getInventory().setItemInMainHand(OraxenItems.getItemById(mechanic.getFilledCanItem()).build());
-                player.getWorld().playSound(player.getLocation(), Sound.ITEM_BUCKET_FILL, 1.0f, 1.0f);
-            }
+        if (targetBlock != null && targetBlock.getType() == Material.WATER) {
+            player.getInventory().setItemInMainHand(OraxenItems.getItemById(mechanic.getFilledCanItem()).build());
+            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BUCKET_FILL, 1.0f, 1.0f);
+        }
 
-            if (block.getType() == Material.WATER_CAULDRON) {
-                Levelled cauldron = (Levelled) block.getBlockData();
-                if (cauldron.getLevel() == 1) return;
-                cauldron.setLevel(cauldron.getLevel()-1);
-                block.setBlockData(cauldron);
-                player.getInventory().setItemInMainHand(OraxenItems.getItemById(mechanic.getFilledCanItem()).build());
-                player.getWorld().playSound(player.getLocation(), Sound.ITEM_BUCKET_FILL, 1.0f, 1.0f);
-            }
-        }, null);
+        if (block.getType() == Material.WATER_CAULDRON) {
+            Levelled cauldron = (Levelled) block.getBlockData();
+            if (cauldron.getLevel() == 1) return;
+            cauldron.setLevel(cauldron.getLevel()-1);
+            block.setBlockData(cauldron);
+            player.getInventory().setItemInMainHand(OraxenItems.getItemById(mechanic.getFilledCanItem()).build());
+            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BUCKET_FILL, 1.0f, 1.0f);
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -86,7 +83,7 @@ public class WateringMechanicListener implements Listener {
         } else return;
 
         player.getInventory().setItemInMainHand(OraxenItems.getItemById(mechanic.getEmptyCanItem()).build());
-        player.getWorld().spawnParticle(Particle.WATER_SPLASH, block.getLocation().add(0.5, 1, 0.5), 40);
+        player.getWorld().spawnParticle(ParticleWrapper.SPLASH, block.getLocation().add(0.5, 1, 0.5), 40);
         player.getWorld().playSound(block.getLocation(), Sound.ITEM_BUCKET_EMPTY, 1.0f, 1.0f);
     }
 }

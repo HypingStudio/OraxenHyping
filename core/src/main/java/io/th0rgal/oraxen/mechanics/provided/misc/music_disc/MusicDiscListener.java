@@ -1,7 +1,6 @@
 package io.th0rgal.oraxen.mechanics.provided.misc.music_disc;
 
 import com.jeff_media.morepersistentdatatypes.DataType;
-import fr.euphyllia.energie.model.SchedulerType;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenFurniture;
 import io.th0rgal.oraxen.api.OraxenItems;
@@ -29,10 +28,11 @@ import org.bukkit.persistence.PersistentDataContainer;
 
 import javax.annotation.Nullable;
 
+@Deprecated(forRemoval = true, since = "1.21")
 public class MusicDiscListener implements Listener {
 
-    public static final NamespacedKey MUSIC_DISC_KEY = new NamespacedKey(OraxenPlugin.get(), "music_disc");
     private final MusicDiscMechanicFactory factory;
+    public static final NamespacedKey MUSIC_DISC_KEY = new NamespacedKey(OraxenPlugin.get(), "music_disc");
 
     public MusicDiscListener(MusicDiscMechanicFactory factory) {
         this.factory = factory;
@@ -67,31 +67,25 @@ public class MusicDiscListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onJukeboxBreak(BlockBreakEvent event) {
-        OraxenPlugin.getScheduler().runTask(SchedulerType.SYNC, event.getBlock().getLocation(), t -> {
-            ejectAndStopCustomDisc(event.getBlock());
-        });
+        ejectAndStopCustomDisc(event.getBlock());
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onJukeboxBreak(BlockExplodeEvent event) {
-        OraxenPlugin.getScheduler().runTask(SchedulerType.SYNC, event.getBlock().getLocation(), t -> {
-            ejectAndStopCustomDisc(event.getBlock());
-        });
+        ejectAndStopCustomDisc(event.getBlock());
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onJukeboxBreak(BlockBurnEvent event) {
-        OraxenPlugin.getScheduler().runTask(SchedulerType.SYNC, event.getBlock().getLocation(), t -> {
-            ejectAndStopCustomDisc(event.getBlock());
-        });
+        ejectAndStopCustomDisc(event.getBlock());
     }
 
     /**
      * Inserts the custom Oraxen Disc item by storing the ItemStack in the blocks PersistentDataContainer.
      * Plays the sound attached to the disc, if any.
      *
-     * @param block  The Jukebox block to insert the disc into
-     * @param disc   The Oraxen Disc item to insert
+     * @param block The Jukebox block to insert the disc into
+     * @param disc The Oraxen Disc item to insert
      * @param player The player who inserted the disc, null if inserted by a non-player, i.e hoppers or other entities
      **/
     private boolean insertAndPlayCustomDisc(Block block, ItemStack disc, @Nullable Player player) {
@@ -100,8 +94,7 @@ public class MusicDiscListener implements Listener {
         MusicDiscMechanic mechanic = (MusicDiscMechanic) factory.getMechanic(itemID);
         FurnitureMechanic furnitureMechanic = OraxenFurniture.getFurnitureMechanic(block);
 
-        if (block.getType() != Material.JUKEBOX && (furnitureMechanic == null || !furnitureMechanic.isJukebox()))
-            return false;
+        if (block.getType() != Material.JUKEBOX && (furnitureMechanic == null || !furnitureMechanic.isJukebox())) return false;
         if (pdc.has(MUSIC_DISC_KEY, DataType.ITEM_STACK)) return false;
         if (disc.getType() == Material.AIR || factory.isNotImplementedIn(itemID)) return false;
         if (mechanic == null || mechanic.hasNoSong()) return false;
@@ -130,8 +123,7 @@ public class MusicDiscListener implements Listener {
         FurnitureMechanic furnitureMechanic = OraxenFurniture.getFurnitureMechanic(block);
         Location loc = BlockHelpers.toCenterLocation(block.getLocation());
 
-        if (block.getType() != Material.JUKEBOX && (furnitureMechanic == null || !furnitureMechanic.isJukebox()))
-            return false;
+        if (block.getType() != Material.JUKEBOX && (furnitureMechanic == null || !furnitureMechanic.isJukebox())) return false;
         if (!pdc.has(MUSIC_DISC_KEY, DataType.ITEM_STACK)) return false;
         if (ejectedDisc == null || factory.isNotImplementedIn(itemID)) return false;
         if (mechanic == null || mechanic.hasNoSong()) return false;

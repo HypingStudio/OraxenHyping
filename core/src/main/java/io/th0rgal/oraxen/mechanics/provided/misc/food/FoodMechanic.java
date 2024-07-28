@@ -16,9 +16,11 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
+@Deprecated(forRemoval = true, since = "1.20.6")
 public class FoodMechanic extends Mechanic {
 
     private final Set<PotionEffect> effects = new HashSet<>();
@@ -44,7 +46,7 @@ public class FoodMechanic extends Mechanic {
     }
 
     private void registerEffects(ConfigurationSection section) {
-        String type = section.getName().toLowerCase();
+        String type = section.getName().toLowerCase(Locale.ROOT);
         PotionEffectType effectType = PotionUtils.getEffectType(type);
         if (effectType == null) {
             Logs.logError("Invalid potion effect: " + section.getName() + ", in " + StringUtils.substringBefore(section.getCurrentPath(), ".") + "!");
