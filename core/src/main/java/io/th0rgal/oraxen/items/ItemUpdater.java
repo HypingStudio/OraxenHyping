@@ -2,12 +2,14 @@ package io.th0rgal.oraxen.items;
 
 import com.jeff_media.morepersistentdatatypes.DataType;
 import com.jeff_media.persistentdataserializer.PersistentDataSerializer;
+import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.config.Settings;
 import io.th0rgal.oraxen.nms.NMSHandlers;
 import io.th0rgal.oraxen.utils.AdventureUtils;
 import io.th0rgal.oraxen.utils.ItemUtils;
 import io.th0rgal.oraxen.utils.VersionUtil;
+import org.bukkit.Bukkit;
 import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -23,6 +25,7 @@ import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
@@ -115,6 +118,29 @@ public class ItemUpdater implements Listener {
         });
     }
 
+    // Until Paper changes getReplacement to use food-component, this is the best way
+    @EventHandler(ignoreCancelled = true)
+    public void onUseConvertedTo(PlayerItemConsumeEvent event) {
+        ItemStack itemStack = event.getItem();
+        if (!itemStack.hasItemMeta() || !itemStack.getItemMeta().hasFood()) return;
+        ItemStack usingConvertsTo = itemStack.getItemMeta().getFood().getUsingConvertsTo();
+        if (usingConvertsTo == null || !itemStack.isSimilar(ItemUpdater.updateItem(usingConvertsTo))) return;
+
+        PlayerInventory inventory = event.getPlayer().getInventory();
+        if (inventory.firstEmpty() == -1) event.setItem(event.getItem().add(usingConvertsTo.getAmount()));
+        else Bukkit.getScheduler().runTask(OraxenPlugin.get(), () -> {
+            for (int i = 0; i < inventory.getSize(); i++) {
+                ItemStack oldItem = inventory.getItem(i);
+                ItemStack newItem = ItemUpdater.updateItem(oldItem);
+                if (!itemStack.isSimilar(newItem)) continue;
+
+                // Remove the item and add it to fix stacking
+                inventory.setItem(i, null);
+                inventory.addItem(newItem);
+            }
+        });
+    }
+
     private static final NamespacedKey IF_UUID = Objects.requireNonNull(NamespacedKey.fromString("oraxen:if-uuid"));
     private static final NamespacedKey MF_GUI = Objects.requireNonNull(NamespacedKey.fromString("oraxen:mf-gui"));
     @SuppressWarnings("deprecation")
@@ -166,7 +192,7 @@ public class ItemUpdater implements Listener {
 
             // Transfer over durability from old item
             if (itemMeta instanceof Damageable damageable && oldMeta instanceof Damageable oldDmg) {
-                damageable.setDamage(oldDmg.getDamage());
+                if (oldDmg.hasDamage()) damageable.setDamage(oldDmg.getDamage());
             }
 
             if (oldMeta.isUnbreakable()) itemMeta.setUnbreakable(true);
@@ -192,6 +218,30 @@ public class ItemUpdater implements Listener {
 
             if (VersionUtil.atOrAbove("1.20") && itemMeta instanceof ArmorMeta armorMeta && oldMeta instanceof ArmorMeta oldArmorMeta) {
                 armorMeta.setTrim(oldArmorMeta.getTrim());
+            }
+
+            if (VersionUtil.atOrAbove("1.20.5")) {
+                if (newMeta.hasFood()) itemMeta.setFood(newMeta.getFood());
+                else if (oldMeta.hasFood()) itemMeta.setFood(oldMeta.getFood());
+
+                if (newMeta.hasEnchantmentGlintOverride()) itemMeta.setEnchantmentGlintOverride(newMeta.getEnchantmentGlintOverride());
+                else if (oldMeta.hasEnchantmentGlintOverride()) itemMeta.setEnchantmentGlintOverride(oldMeta.getEnchantmentGlintOverride());
+
+                if (newMeta.hasMaxStackSize()) itemMeta.setMaxStackSize(newMeta.getMaxStackSize());
+                else if (oldMeta.hasMaxStackSize()) itemMeta.setMaxStackSize(oldMeta.getMaxStackSize());
+
+                if (VersionUtil.isPaperServer()) {
+                    if (newMeta.hasItemName()) itemMeta.itemName(newMeta.itemName());
+                    else if (oldMeta.hasItemName()) itemMeta.itemName(oldMeta.itemName());
+                } else {
+                    if (newMeta.hasItemName()) itemMeta.setItemName(newMeta.getItemName());
+                    else if (oldMeta.hasItemName()) itemMeta.setItemName(oldMeta.getItemName());
+                }
+            }
+
+            if (VersionUtil.atOrAbove("1.21")) {
+                if (newMeta.hasJukeboxPlayable()) itemMeta.setJukeboxPlayable(newMeta.getJukeboxPlayable());
+                else if (oldMeta.hasJukeboxPlayable()) itemMeta.setJukeboxPlayable(oldMeta.getJukeboxPlayable());
             }
 
             // On 1.20.5+ we use ItemName which is different from userchanged displaynames
