@@ -57,11 +57,13 @@ allprojects {
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots") // commandAPI snapshots
         maven("https://repo.oraxen.com/releases")
         maven("https://repo.oraxen.com/snapshots")
-       // maven("https://repo.auxilor.io/repository/maven-public/") // EcoItems
+        maven("https://repo.auxilor.io/repository/maven-public/") // EcoItems
         maven("https://maven.enginehub.org/repo/")
         maven("https://jitpack.io") // JitPack
         maven("https://nexus.phoenixdevt.fr/repository/maven-public/") // MMOItems
         maven("https://repo.codemc.org/repository/maven-public/") // BlockLocker
+
+        mavenLocal()
     }
 
     dependencies {
@@ -97,17 +99,19 @@ allprojects {
         compileOnly(files("../libs/MorePersistentDataTypes-2.4.0.jar"))
         compileOnly(files("../libs/ProtocolLib.jar"))
 
+
         implementation("dev.jorel:commandapi-bukkit-shade:$commandApiVersion")
-        implementation("org.bstats:bstats-bukkit:3.0.0")
+        //implementation("org.bstats:bstats-bukkit:3.0.0")
         implementation("io.th0rgal:protectionlib:1.6.0")
-        implementation("com.github.stefvanschie.inventoryframework:IF:0.10.12")
-        implementation("com.jeff-media:custom-block-data:2.2.2")
-        //implementation("com.jeff_media:MorePersistentDataTypes:2.4.0")
+        implementation("com.github.stefvanschie.inventoryframework:IF_Folia:0.10.14-SNAPSHOT")
+        implementation(files("../libs/compile-folia/custom-block-data-2.2.2.jar")) //implementation("com.jeff_media:CustomBlockData_Folia:2.2.2")
+        implementation("com.jeff_media:MorePersistentDataTypes:2.4.0")
         implementation("com.jeff-media:persistent-data-serializer:1.0")
         implementation("org.jetbrains:annotations:24.1.0") { isTransitive = false }
         implementation("dev.triumphteam:triumph-gui:3.1.10") { exclude("net.kyori") }
         implementation("com.ticxo:PlayerAnimator:R1.2.8") { isChanging = true }
-//        implementation("com.github.Euphillya:Energie:1.2.0")
+
+        implementation("com.github.Euphillya:Energie:1.2.0")
         implementation("com.github.TechnicallyCoded:FoliaLib:0.4.3")
 
         implementation("me.gabytm.util:actions-spigot:$actionsVersion") { exclude(group = "com.google.guava") }
@@ -162,7 +166,7 @@ tasks {
         //relocate("com.udojava.evalex", "io.th0rgal.oraxen.shaded.evalex")
         //relocate("com.ticxo.playeranimator", "io.th0rgal.oraxen.shaded.playeranimator")
         //relocate("dev.jorel", "io.th0rgal.oraxen.shaded")
-//        relocate("fr.euphyllia.energie", "io.th0rgal.oraxen.shaded.energie")
+        relocate("fr.euphyllia.energie", "io.th0rgal.oraxen.shaded.energie")
         relocate("com.tcoded.folialib", "io.th0rgal.oraxen.shaded.folialib")
 
         manifest {
