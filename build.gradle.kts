@@ -30,7 +30,7 @@ val devPluginPath = project.findProperty("oraxen_dev_plugin_path")?.toString()
 val foliaPluginPath = project.findProperty("oraxen_folia_plugin_path")?.toString()
 val spigotPluginPath = project.findProperty("oraxen_spigot_plugin_path")?.toString()
 val pluginVersion: String by project
-val commandApiVersion = "9.5.1"
+val commandApiVersion = "9.5.3"
 val adventureVersion = "4.17.0"
 val platformVersion = "4.3.3"
 val googleGsonVersion = "2.10.1"
@@ -78,7 +78,7 @@ allprojects {
         compileOnly("me.clip:placeholderapi:2.11.6")
         compileOnly("me.gabytm.util:actions-core:$actionsVersion")
         compileOnly("org.springframework:spring-expression:6.0.6")
-        compileOnly("io.lumine:Mythic-Dist:5.6.1")
+        compileOnly("io.lumine:Mythic-Dist:5.7.0-SNAPSHOT")
         compileOnly("io.lumine:MythicCrucible:1.6.0-SNAPSHOT")
         compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.9")
         compileOnly("commons-io:commons-io:2.11.0")
@@ -96,6 +96,7 @@ allprojects {
         compileOnly("nl.rutgerkok:blocklocker:1.10.4-SNAPSHOT")
         compileOnly("org.apache.commons:commons-lang3:$apacheLang3Version")
 
+        implementation("team.unnamed:creative-api:1.7.3") { exclude("net.kyori") }
         compileOnly(files("../libs/MorePersistentDataTypes-2.4.0.jar"))
         compileOnly(files("../libs/ProtocolLib.jar"))
 
@@ -109,7 +110,6 @@ allprojects {
         implementation("com.jeff-media:persistent-data-serializer:1.0")
         implementation("org.jetbrains:annotations:24.1.0") { isTransitive = false }
         implementation("dev.triumphteam:triumph-gui:3.1.10") { exclude("net.kyori") }
-        implementation("com.ticxo:PlayerAnimator:R1.2.8") { isChanging = true }
 
         implementation("com.github.Euphillya:Energie:1.2.0")
         implementation("com.github.TechnicallyCoded:FoliaLib:0.4.3")
@@ -220,8 +220,6 @@ bukkit {
         "net.kyori:adventure-platform-bukkit:$platformVersion",
         "com.google.code.gson:gson:$googleGsonVersion",
         "org.apache.commons:commons-lang3:$apacheLang3Version",
-        "team.unnamed:creative-api:1.7.3",
-        "team.unnamed:creative-serializer-minecraft:1.7.3",
         "gs.mclo:java:2.2.1",
     )
 }
