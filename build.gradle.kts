@@ -110,7 +110,7 @@ allprojects {
         implementation("com.jeff-media:persistent-data-serializer:1.0")
         implementation("org.jetbrains:annotations:24.1.0") { isTransitive = false }
         implementation("dev.triumphteam:triumph-gui:3.1.10") { exclude("net.kyori") }
-
+        implementation("com.ticxo:PlayerAnimator:R1.2.8") { isChanging = true }
         implementation("com.github.Euphillya:Energie:1.2.0")
         implementation("com.github.TechnicallyCoded:FoliaLib:0.4.3")
 

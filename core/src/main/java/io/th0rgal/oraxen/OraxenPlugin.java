@@ -1,8 +1,6 @@
 package io.th0rgal.oraxen;
 
 import com.comphenix.protocol.ProtocolLibrary;
-import com.tcoded.folialib.FoliaLib;
-import com.ticxo.playeranimator.PlayerAnimatorImpl;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import fr.euphyllia.energie.Energie;
@@ -48,6 +46,7 @@ import java.util.jar.JarFile;
 public class OraxenPlugin extends JavaPlugin {
 
     private static OraxenPlugin oraxen;
+    private static Energie energie;
     private ConfigsManager configsManager;
     private ResourcesManager resourceManager;
     private BukkitAudiences audience;
@@ -68,6 +67,11 @@ public class OraxenPlugin extends JavaPlugin {
         return oraxen;
     }
 
+    public @NotNull static Scheduler getScheduler() {
+        return energie.getMinecraftScheduler();
+    }
+
+
     @Nullable
     public static JarFile getJarFile() {
         try {
@@ -84,6 +88,7 @@ public class OraxenPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        energie = new Energie(this);
         CommandAPI.onEnable();
         ProtectionLib.init(this);
         audience = BukkitAudiences.create(this);
@@ -135,8 +140,9 @@ public class OraxenPlugin extends JavaPlugin {
     private void postLoading() {
         new Metrics(this, 5371);
         new LU().l();
-        Bukkit.getScheduler().runTask(this, () ->
-                Bukkit.getPluginManager().callEvent(new OraxenItemsLoadedEvent()));
+        getScheduler().runTask(SchedulerType.SYNC, schedulerTaskInter -> {
+            Bukkit.getPluginManager().callEvent(new OraxenItemsLoadedEvent());
+        });
     }
 
     @Override
