@@ -247,7 +247,6 @@ public class ItemUpdater implements Listener {
             }
 
             // On 1.20.5+ we use ItemName which is different from userchanged displaynames
-            // Thus removing the need for this logic
             if (!VersionUtil.atOrAbove("1.20.5")) {
 
                 // HYPING Start - Fix component NPEs
@@ -282,6 +281,14 @@ public class ItemUpdater implements Listener {
                         : newMetaLegacyName // HYPING - Fix component NPEs
                         : null;
                 if (originalName != null) itemPdc.set(ORIGINAL_NAME_KEY, DataType.STRING, originalName);
+            } else { // Set the displayName/customName if it exists on an item before
+                if (newMeta.hasDisplayName() && !newMeta.getDisplayName().isEmpty()) {
+                    if (VersionUtil.isPaperServer()) itemMeta.displayName(newMeta.displayName());
+                    else itemMeta.setDisplayName(newMeta.getDisplayName());
+                } else {
+                    if (VersionUtil.isPaperServer()) itemMeta.displayName(oldMeta.displayName());
+                    else itemMeta.setDisplayName(oldMeta.getDisplayName());
+                }
             }
 
 
