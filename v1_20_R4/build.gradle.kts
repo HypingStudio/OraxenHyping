@@ -11,6 +11,7 @@ repositories {
 dependencies {
     compileOnly(project(":core"))
     paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
+    //paperweight.paperDevBundle("1.20.6-R0.1-SNAPSHOT")
     pluginRemapper("net.fabricmc:tiny-remapper:0.10.3:fat")
 }
 
@@ -21,5 +22,5 @@ tasks {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
