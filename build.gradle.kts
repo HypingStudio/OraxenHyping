@@ -7,16 +7,21 @@ import kotlin.io.path.listDirectoryEntries
 plugins {
     id("java")
     //id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("xyz.jpenilla.run-paper") version "2.2.4"
+    id("xyz.jpenilla.run-paper") version "2.3.1"
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0" // Generates plugin.yml
-    id("io.papermc.paperweight.userdev") version "1.7.1" apply false
-    id("io.github.goooler.shadow") version "8.1.7"
+    id("io.papermc.paperweight.userdev") version "1.7.2" apply false
+    id("io.github.goooler.shadow") version "8.1.8"
     alias(libs.plugins.mia.publication)
 }
 
 class NMSVersion(val nmsVersion: String, val serverVersion: String)
 infix fun String.toNms(that: String): NMSVersion = NMSVersion(this, that)
 val SUPPORTED_VERSIONS: List<NMSVersion> = listOf(
+    //"v1_18_R1" toNms "1.18.1-R0.1-SNAPSHOT",
+    //"v1_18_R2" toNms "1.18.2-R0.1-SNAPSHOT",
+    //"v1_19_R1" toNms "1.19.2-R0.1-SNAPSHOT",
+    //"v1_19_R2" toNms "1.19.3-R0.1-SNAPSHOT",
+    //"v1_19_R3" toNms "1.19.4-R0.1-SNAPSHOT",
     "v1_20_R1" toNms "1.20.1-R0.1-SNAPSHOT",
     "v1_20_R2" toNms "1.20.2-R0.1-SNAPSHOT",
     "v1_20_R3" toNms "1.20.4-R0.1-SNAPSHOT",
@@ -32,7 +37,7 @@ val spigotPluginPath = project.findProperty("oraxen_spigot_plugin_path")?.toStri
 val pluginVersion: String by project
 val commandApiVersion = "9.7.0"
 val adventureVersion = "4.17.0"
-val platformVersion = "4.3.3"
+val platformVersion = "4.3.4"
 val googleGsonVersion = "2.10.1"
 val apacheLang3Version = "3.14.0"
 group = "io.th0rgal"
@@ -103,7 +108,9 @@ allprojects {
 
         implementation("dev.jorel:commandapi-bukkit-shade:$commandApiVersion")
         //implementation("org.bstats:bstats-bukkit:3.0.0")
-        implementation("io.th0rgal:protectionlib:1.6.0")
+        implementation("io.th0rgal:protectionlib:1.6.1")
+        implementation("com.github.stefvanschie.inventoryframework:IF:0.10.12")
+        implementation("com.jeff-media:custom-block-data:2.2.2")
 
         implementation("com.github.stefvanschie.inventoryframework:IF_Folia:0.10.14-SNAPSHOT")
         implementation(files("../libs/compile-folia/custom-block-data-2.2.2.jar"))
@@ -125,6 +132,8 @@ dependencies {
     implementation(project(path = ":core"))
     SUPPORTED_VERSIONS.forEach { implementation(project(path = ":${it.nmsVersion}", configuration = "reobf")) }
 }
+
+
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
