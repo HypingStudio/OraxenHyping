@@ -2,7 +2,6 @@ package io.th0rgal.oraxen.mechanics.provided.gameplay.furniture;
 
 import fr.euphyllia.energie.model.SchedulerTaskInter;
 import fr.euphyllia.energie.model.SchedulerType;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.OraxenFurniture;
@@ -112,30 +111,32 @@ public class FurnitureSoundListener implements Listener {
         Block blockStandingOn = BlockHelpers.getBlockStandingOn(entity);
         EntityDamageEvent cause = entity.getLastDamageCause();
 
-        if (blockStandingOn == null || blockStandingOn.getType().isAir()) return;
-        SoundGroup soundGroup = blockStandingOn.getBlockData().getSoundGroup();
+        Bukkit.getServer().getRegionScheduler().run(OraxenPlugin.get(), entity.getLocation(), task -> {
+            if (blockStandingOn == null || blockStandingOn.getType().isAir()) return;
+            SoundGroup soundGroup = blockStandingOn.getBlockData().getSoundGroup();
 
-        if (soundGroup.getStepSound() != Sound.BLOCK_STONE_STEP) return;
-        if (gameEvent == GameEvent.HIT_GROUND && cause != null && cause.getCause() != EntityDamageEvent.DamageCause.FALL) return;
-        if (blockStandingOn.getType() == Material.TRIPWIRE) return;
-        FurnitureMechanic mechanic = OraxenFurniture.getFurnitureMechanic(blockStandingOn);
+            if (soundGroup.getStepSound() != Sound.BLOCK_STONE_STEP) return;
+            if (gameEvent == GameEvent.HIT_GROUND && cause != null && cause.getCause() != EntityDamageEvent.DamageCause.FALL) return;
+            if (blockStandingOn.getType() == Material.TRIPWIRE) return;
+            FurnitureMechanic mechanic = OraxenFurniture.getFurnitureMechanic(blockStandingOn);
 
-        String sound;
-        float volume;
-        float pitch;
-        if (gameEvent == GameEvent.STEP) {
-            boolean check = blockStandingOn.getType() == Material.BARRIER && mechanic != null && mechanic.hasBlockSounds() && mechanic.getBlockSounds().hasStepSound();
-            sound = (check) ? mechanic.getBlockSounds().getStepSound() : VANILLA_STONE_STEP;
-            volume = (check) ? mechanic.getBlockSounds().getStepVolume() : VANILLA_STEP_VOLUME;
-            pitch = (check) ? mechanic.getBlockSounds().getStepPitch() : VANILLA_STEP_PITCH;
-        } else if (gameEvent == GameEvent.HIT_GROUND) {
-            boolean check = (blockStandingOn.getType() == Material.BARRIER && mechanic != null && mechanic.hasBlockSounds() && mechanic.getBlockSounds().hasFallSound());
-            sound = (check) ? mechanic.getBlockSounds().getFallSound() : VANILLA_STONE_FALL;
-            volume = (check) ? mechanic.getBlockSounds().getFallVolume() : VANILLA_FALL_VOLUME;
-            pitch = (check) ? mechanic.getBlockSounds().getFallPitch() : VANILLA_FALL_PITCH;
-        } else return;
+            String sound;
+            float volume;
+            float pitch;
+            if (gameEvent == GameEvent.STEP) {
+                boolean check = blockStandingOn.getType() == Material.BARRIER && mechanic != null && mechanic.hasBlockSounds() && mechanic.getBlockSounds().hasStepSound();
+                sound = (check) ? mechanic.getBlockSounds().getStepSound() : VANILLA_STONE_STEP;
+                volume = (check) ? mechanic.getBlockSounds().getStepVolume() : VANILLA_STEP_VOLUME;
+                pitch = (check) ? mechanic.getBlockSounds().getStepPitch() : VANILLA_STEP_PITCH;
+            } else if (gameEvent == GameEvent.HIT_GROUND) {
+                boolean check = (blockStandingOn.getType() == Material.BARRIER && mechanic != null && mechanic.hasBlockSounds() && mechanic.getBlockSounds().hasFallSound());
+                sound = (check) ? mechanic.getBlockSounds().getFallSound() : VANILLA_STONE_FALL;
+                volume = (check) ? mechanic.getBlockSounds().getFallVolume() : VANILLA_FALL_VOLUME;
+                pitch = (check) ? mechanic.getBlockSounds().getFallPitch() : VANILLA_FALL_PITCH;
+            } else return;
 
-        BlockHelpers.playCustomBlockSound(entity.getLocation(), sound, SoundCategory.PLAYERS, volume, pitch);
+            BlockHelpers.playCustomBlockSound(entity.getLocation(), sound, SoundCategory.PLAYERS, volume, pitch);
+        });
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

@@ -361,7 +361,6 @@ public class FurnitureMechanic extends Mechanic {
     }
 
     public Entity place(Location location) {
-
         return place(location, OraxenItems.getItemById(getItemID()).build(), 0f, BlockFace.NORTH, true);
     }
 
@@ -557,11 +556,12 @@ public class FurnitureMechanic extends Mechanic {
     }
 
     void spawnModelEngineFurniture(Entity entity) {
+        System.out.println("Pitch: " + entity.getLocation().getPitch());
         ModeledEntity modelEntity = ModelEngineAPI.getOrCreateModeledEntity(entity);
         ActiveModel activeModel = ModelEngineAPI.createActiveModel(getModelEngineID());
         ModelEngineUtils.addModel(modelEntity, activeModel, true);
         ModelEngineUtils.setRotationLock(modelEntity, false);
-        modelEntity.setBaseEntityVisible(false);
+        modelEntity.setBaseEntityVisible(true);
     }
 
     public static ItemStack getFurnitureItem(Entity entity) {
