@@ -381,12 +381,16 @@ public class FurnitureMechanic extends Mechanic {
         if (evolvingFurniture == null) {
             ItemUtils.editItemMeta(item, meta -> meta.setDisplayName(""));
         }
-        item.setAmount(1);
 
-        Entity baseEntity = EntityUtils.spawnEntity(correctedSpawnLocation(location, facing), entityClass, (e) -> setEntityData(e, yaw, item, facing));
+        Entity baseEntity;
         if (this.isModelEngine() && PluginUtils.isEnabled("ModelEngine")) {
+            baseEntity = EntityUtils.spawnEntity(correctedSpawnLocation(location, facing), entityClass, (e) -> setEntityData(e, yaw, new ItemStack(Material.AIR), facing));
             spawnModelEngineFurniture(baseEntity);
+        } else {
+            baseEntity = EntityUtils.spawnEntity(correctedSpawnLocation(location, facing), entityClass, (e) -> setEntityData(e, yaw, item, facing));
+            item.setAmount(1);
         }
+
 
         return baseEntity;
     }
@@ -556,7 +560,6 @@ public class FurnitureMechanic extends Mechanic {
     }
 
     void spawnModelEngineFurniture(Entity entity) {
-        System.out.println("Pitch: " + entity.getLocation().getPitch());
         ModeledEntity modelEntity = ModelEngineAPI.getOrCreateModeledEntity(entity);
         ActiveModel activeModel = ModelEngineAPI.createActiveModel(getModelEngineID());
         ModelEngineUtils.addModel(modelEntity, activeModel, true);
