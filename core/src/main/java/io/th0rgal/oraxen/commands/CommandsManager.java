@@ -90,7 +90,7 @@ public class CommandsManager {
                 .withPermission("oraxen.command.give")
                 .withArguments(new EntitySelectorArgument.ManyPlayers("targets"),
                         new TextArgument("item").replaceSuggestions(ArgumentSuggestions.strings(OraxenItems.getItemNames())),
-                        new DoubleArgument("amount"))
+                        new IntegerArgument("amount"))
                 .executes((sender, args) -> {
                     final Collection<Player> targets = (Collection<Player>) args.get(0);
                     final String itemID = (String) args.get(1);
@@ -99,13 +99,7 @@ public class CommandsManager {
                         Message.ITEM_NOT_FOUND.send(sender, AdventureUtils.tagResolver("item", itemID));
                         return;
                     }
-
-                    Object amountObj = args.get(2);
-                    int amount;
-                    if (amountObj instanceof Double amountDouble) amount = (int) amountDouble.doubleValue();
-                    else if (amountObj instanceof Integer amountInteger) amount = amountInteger;
-                    else throw new IllegalArgumentException("Amount is not a valid number: " + amountObj + " (" + amountObj.getClass().getName() + ")");
-
+                    int amount = (int) args.get(2);
                     final int max = itemBuilder.hasMaxStackSize() ? itemBuilder.getMaxStackSize() : itemBuilder.getType().getMaxStackSize();
                     final int slots = amount / max + (max % amount > 0 ? 1 : 0);
                     ItemStack[] items = itemBuilder.buildArray(slots > 36 ? (amount = max * 36) : amount);
