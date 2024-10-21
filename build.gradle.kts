@@ -107,6 +107,7 @@ allprojects {
 
 
         implementation("dev.jorel:commandapi-bukkit-shade:$commandApiVersion")
+        implementation("io.th0rgal:protectionlib:1.6.2")
         //implementation("org.bstats:bstats-bukkit:3.0.0")
         implementation("io.th0rgal:protectionlib:1.6.1")
         implementation("com.github.stefvanschie.inventoryframework:IF:0.10.12")
