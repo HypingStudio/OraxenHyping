@@ -5,13 +5,12 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
     maven("https://papermc.io/repo/repository/maven-public/") // Paper
 }
 
 dependencies {
     compileOnly(project(":core"))
-    paperweight.paperDevBundle("1.21-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.2-R0.1-SNAPSHOT")
 }
 
 tasks {
