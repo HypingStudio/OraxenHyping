@@ -307,7 +307,10 @@ public class OraxenBlocks {
             else if (hasDropOverride || player.getGameMode() != GameMode.CREATIVE)
                 drop = wireBlockBreakEvent.getDrop();
 
-            if (VersionUtil.isPaperServer()) block.getWorld().sendGameEvent(player, GameEvent.BLOCK_DESTROY, block.getLocation().toVector());
+            if (VersionUtil.isPaperServer())
+                Bukkit.getGlobalRegionScheduler().run(OraxenPlugin.get(), wp -> {
+                    block.getWorld().sendGameEvent(player, GameEvent.BLOCK_DESTROY, block.getLocation().toVector());
+                });
         }
         if (drop != null) drop.spawns(block.getLocation(), itemInHand);
 
