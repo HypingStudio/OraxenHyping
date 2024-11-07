@@ -38,13 +38,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.th0rgal.oraxen.utils.BlockHelpers.isLoaded;
 
 public class NoteBlockMechanicListener implements Listener {
 
+    private final List<Location> locations;
+
     public NoteBlockMechanicListener() {
         if (PluginUtils.isEnabled("ProtocolLib")) BreakerSystem.MODIFIERS.add(getHardnessModifier());
+        this.locations = new CopyOnWriteArrayList<>();
     }
 
     public static class NoteBlockMechanicPaperListener implements Listener {
@@ -266,7 +270,20 @@ public class NoteBlockMechanicListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBreakingCustomBlock(final BlockBreakEvent event) {
-        if (OraxenBlocks.isOraxenNoteBlock(event.getBlock())) event.setDropItems(false);
+        if (this.locations.contains(event.getBlock().getLocation())) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (OraxenBlocks.isOraxenNoteBlock(event.getBlock())) {
+            this.locations.add(event.getBlock().getLocation());
+            event.setDropItems(false);
+            OraxenPlugin.get().getServer().getRegionScheduler().runDelayed(OraxenPlugin.get(), event.getBlock().getLocation(), wp -> {
+                event.getBlock().getLocation().getBlock().setType(Material.AIR);
+                this.locations.remove(event.getBlock().getLocation());
+            }, 1L);
+        }
+
         OraxenBlocks.remove(event.getBlock().getLocation(), event.getPlayer());
     }
 
@@ -386,6 +403,7 @@ public class NoteBlockMechanicListener implements Listener {
         Location fallingLocation = BlockHelpers.toCenterBlockLocation(blockAbove.getLocation());
         BlockData fallingData = OraxenBlocks.getOraxenBlockData(mechanic.getItemID());
         if (fallingData == null) return;
+
         OraxenBlocks.remove(blockAbove.getLocation(), null);
         blockAbove.getWorld().spawnFallingBlock(fallingLocation, fallingData);
         handleFallingOraxenBlockAbove(blockAbove);
