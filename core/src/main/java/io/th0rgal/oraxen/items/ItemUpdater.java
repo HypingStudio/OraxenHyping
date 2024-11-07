@@ -8,6 +8,7 @@ import io.th0rgal.oraxen.nms.NMSHandlers;
 import io.th0rgal.oraxen.utils.AdventureUtils;
 import io.th0rgal.oraxen.utils.ItemUtils;
 import io.th0rgal.oraxen.utils.VersionUtil;
+import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -116,6 +117,7 @@ public class ItemUpdater implements Listener {
 
     private static final NamespacedKey IF_UUID = Objects.requireNonNull(NamespacedKey.fromString("oraxen:if-uuid"));
     private static final NamespacedKey MF_GUI = Objects.requireNonNull(NamespacedKey.fromString("oraxen:mf-gui"));
+    @SuppressWarnings("deprecation")
     public static ItemStack updateItem(ItemStack oldItem) {
         String id = OraxenItems.getIdByItem(oldItem);
         if (id == null) return oldItem;
@@ -196,23 +198,36 @@ public class ItemUpdater implements Listener {
             // Thus removing the need for this logic
             if (!VersionUtil.atOrAbove("1.20.5")) {
 
-                String oldDisplayName = AdventureUtils.parseLegacy(VersionUtil.isPaperServer() ? AdventureUtils.MINI_MESSAGE.serialize(oldMeta.displayName()) : AdventureUtils.parseLegacy(oldMeta.getDisplayName()));
+                // HYPING Start - Fix component NPEs
+                Component oldMetaComponentName = oldMeta.displayName();
+                if (oldMetaComponentName == null) oldMetaComponentName = Component.text("");
+
+                String oldMetaLegacyName = oldMeta.getDisplayName();
+                // HYPING End - Fix component NPEs
+
+                String oldDisplayName = AdventureUtils.parseLegacy(VersionUtil.isPaperServer() ? AdventureUtils.MINI_MESSAGE.serialize(oldMetaComponentName) : AdventureUtils.parseLegacy(oldMetaLegacyName)); // HYPING - Fix component NPEs
                 String originalName = AdventureUtils.parseLegacy(oldPdc.getOrDefault(ORIGINAL_NAME_KEY, DataType.STRING, ""));
 
+                // HYPING Start - Fix component NPEs
+                String newMetaLegacyName = newMeta.getDisplayName();
+                Component newMetaComponentName = newMeta.displayName();
+                if (newMetaComponentName == null) newMetaComponentName = AdventureUtils.MINI_MESSAGE.deserialize(originalName);
+                // HYPING Stop - Fix component NPEs
+
                 if (Settings.OVERRIDE_RENAMED_ITEMS.toBool()) {
-                    if (VersionUtil.isPaperServer()) itemMeta.displayName(newMeta.displayName());
-                    else itemMeta.setDisplayName(newMeta.getDisplayName());
+                    if (VersionUtil.isPaperServer()) itemMeta.displayName(newMetaComponentName); // HYPING - Fix component NPEs
+                    else itemMeta.setDisplayName(newMetaLegacyName); // HYPING - Fix component NPEs
                 } else if (!originalName.equals(oldDisplayName)) {
-                    if (VersionUtil.isPaperServer()) itemMeta.displayName(oldMeta.displayName());
-                    else itemMeta.setDisplayName(oldMeta.getDisplayName());
+                    if (VersionUtil.isPaperServer()) itemMeta.displayName(oldMetaComponentName); // HYPING - Fix component NPEs
+                    else itemMeta.setDisplayName(oldMetaLegacyName); // HYPING - Fix component NPEs
                 } else {
-                    if (VersionUtil.isPaperServer()) itemMeta.displayName(newMeta.displayName());
-                    else itemMeta.setDisplayName(newMeta.getDisplayName());
+                    if (VersionUtil.isPaperServer()) itemMeta.displayName(newMetaComponentName); // HYPING - Fix component NPEs
+                    else itemMeta.setDisplayName(newMetaLegacyName); // HYPING - Fix component NPEs
                 }
 
                 originalName = newMeta.hasDisplayName() ? VersionUtil.isPaperServer()
-                        ? AdventureUtils.MINI_MESSAGE.serialize(newMeta.displayName())
-                        : newMeta.getDisplayName()
+                        ? AdventureUtils.MINI_MESSAGE.serialize(newMetaComponentName) // HYPING - Fix component NPEs
+                        : newMetaLegacyName // HYPING - Fix component NPEs
                         : null;
                 if (originalName != null) itemPdc.set(ORIGINAL_NAME_KEY, DataType.STRING, originalName);
             }
