@@ -76,11 +76,11 @@ allprojects {
         val actionsVersion = "1.0.0-SNAPSHOT"
         compileOnly("gs.mclo:java:2.2.1")
 
-        compileOnly("net.kyori:adventure-text-minimessage:$adventureVersion")
-        compileOnly("net.kyori:adventure-text-serializer-plain:$adventureVersion")
-        compileOnly("net.kyori:adventure-text-serializer-ansi:$adventureVersion")
-        compileOnly("net.kyori:adventure-platform-bukkit:$platformVersion")
-        //compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0-SNAPSHOT")
+        implementation("net.kyori:adventure-text-minimessage:$adventureVersion")
+        implementation("net.kyori:adventure-text-serializer-plain:$adventureVersion")
+        implementation("net.kyori:adventure-text-serializer-ansi:$adventureVersion")
+        implementation("net.kyori:adventure-platform-bukkit:$platformVersion")
+        //compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
         compileOnly("me.clip:placeholderapi:2.11.6")
         compileOnly("me.gabytm.util:actions-core:$actionsVersion")
         compileOnly("org.springframework:spring-expression:6.0.6")
@@ -110,7 +110,7 @@ allprojects {
         implementation("dev.jorel:commandapi-bukkit-shade:$commandApiVersion")
         implementation("org.glassfish:javax.json:1.1.4")
         implementation("io.th0rgal:protectionlib:1.6.2")
-        //implementation("org.bstats:bstats-bukkit:3.0.0")
+
         implementation("com.github.stefvanschie.inventoryframework:IF:0.10.12")
         implementation("com.jeff-media:custom-block-data:2.2.2")
 
@@ -228,10 +228,10 @@ bukkit {
         "org.springframework:spring-expression:6.0.6",
         "org.apache.httpcomponents:httpmime:4.5.13",
         "org.joml:joml:1.10.5",
-        "net.kyori:adventure-text-minimessage:$adventureVersion",
-        "net.kyori:adventure-text-serializer-plain:$adventureVersion",
-        "net.kyori:adventure-text-serializer-ansi:$adventureVersion",
-        "net.kyori:adventure-platform-bukkit:$platformVersion",
+        // "net.kyori:adventure-text-minimessage:$adventureVersion",
+        // "net.kyori:adventure-text-serializer-plain:$adventureVersion",
+        // "net.kyori:adventure-text-serializer-ansi:$adventureVersion",
+        // "net.kyori:adventure-platform-bukkit:$platformVersion",
         "com.google.code.gson:gson:$googleGsonVersion",
         "org.apache.commons:commons-lang3:$apacheLang3Version",
         "gs.mclo:java:2.2.1",
