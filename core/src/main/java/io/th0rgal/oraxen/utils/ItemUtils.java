@@ -126,4 +126,17 @@ public class ItemUtils {
             return null;
         }
     }
+
+    @Nullable
+    public static ItemStack getUsingConvertsTo(ItemMeta itemMeta) {
+        if (!VersionUtil.atOrAbove("1.21") || itemMeta == null) return null;
+
+        if (VersionUtil.atOrAbove("1.21.2")) return itemMeta.hasUseRemainder() ? itemMeta.getUseRemainder() : null;
+        try {
+            return (ItemStack) FoodComponent.class.getMethod("getUsingConvertsTo").invoke(itemMeta.getFood());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
