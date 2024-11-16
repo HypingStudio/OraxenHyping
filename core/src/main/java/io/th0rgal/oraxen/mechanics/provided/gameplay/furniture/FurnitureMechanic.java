@@ -384,7 +384,13 @@ public class FurnitureMechanic extends Mechanic {
 
         Entity baseEntity;
         if (this.isModelEngine() && PluginUtils.isEnabled("ModelEngine")) {
-            baseEntity = EntityUtils.spawnEntity(correctedSpawnLocation(location, facing), entityClass, (e) -> setEntityData(e, yaw, new ItemStack(Material.AIR), facing));
+            Location spawnLocation = correctedSpawnLocation(location, facing);
+            if (!spawnLocation.getChunk().isLoaded()) {
+               spawnLocation.getChunk().setForceLoaded(true);
+               spawnLocation.getChunk().load(false);
+            }
+
+            baseEntity = EntityUtils.spawnEntity(spawnLocation, entityClass, (e) -> setEntityData(e, yaw, new ItemStack(Material.AIR), facing));
             spawnModelEngineFurniture(baseEntity);
         } else {
             baseEntity = EntityUtils.spawnEntity(correctedSpawnLocation(location, facing), entityClass, (e) -> setEntityData(e, yaw, item, facing));
