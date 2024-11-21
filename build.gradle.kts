@@ -105,11 +105,9 @@ allprojects {
         compileOnly(files("../libs/MorePersistentDataTypes-2.4.0.jar"))
         compileOnly(files("../libs/ProtocolLib.jar"))
 
-
         implementation("dev.jorel:commandapi-bukkit-shade:$commandApiVersion")
         implementation("org.glassfish:javax.json:1.1.4")
-        implementation("io.th0rgal:protectionlib:1.6.2")
-
+        implementation("io.th0rgal:protectionlib:1.7.0")
         implementation("com.github.stefvanschie.inventoryframework:IF:0.10.12")
         implementation("com.jeff-media:custom-block-data:2.2.2")
 
@@ -137,7 +135,9 @@ dependencies {
 
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
 }
 
 tasks {
