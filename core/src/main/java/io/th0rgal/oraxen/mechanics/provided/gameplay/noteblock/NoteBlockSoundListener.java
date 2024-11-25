@@ -7,6 +7,7 @@ import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.events.noteblock.OraxenNoteBlockBreakEvent;
 import io.th0rgal.oraxen.api.events.noteblock.OraxenNoteBlockPlaceEvent;
 import io.th0rgal.oraxen.utils.BlockHelpers;
+import io.th0rgal.oraxen.utils.EventUtils;
 import io.th0rgal.oraxen.utils.blocksounds.BlockSounds;
 import io.th0rgal.protectionlib.ProtectionLib;
 import org.bukkit.*;
@@ -77,8 +78,21 @@ public class NoteBlockSoundListener implements Listener {
 
         if (block.getType() == Material.NOTE_BLOCK || block.getType() == Material.MUSHROOM_STEM) {
             if (event.getInstaBreak()) {
-                OraxenPlugin.getScheduler().runDelayed(SchedulerType.SYNC, location, taskInter ->
-                        block.setType(Material.AIR, false), 1);
+
+                Runnable task = () -> {
+                    BlockBreakEvent breakEvent = new BlockBreakEvent(block, event.getPlayer());
+                    EventUtils.callEvent(breakEvent);
+                    if (breakEvent.isCancelled()) return;
+
+                    block.setType(Material.AIR, false);
+                };
+
+                if (OraxenPlugin.get().getFoliaScheduler().isOwnedByCurrentRegion(block)) {
+                    task.run();
+                } else {
+                    OraxenPlugin.get().getLogger().severe("The block " + block.getType() + " at " + location + " is not owned by the current region! (NoteBlockSoundListener)");
+                    OraxenPlugin.getScheduler().runDelayed(SchedulerType.SYNC, location, taskInter -> task.run(), 1);
+                }
                 return;
             }
         }

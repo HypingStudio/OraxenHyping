@@ -38,17 +38,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.th0rgal.oraxen.utils.BlockHelpers.isLoaded;
 
 public class NoteBlockMechanicListener implements Listener {
 
-    private final List<Location> locations;
-
     public NoteBlockMechanicListener() {
         if (PluginUtils.isEnabled("ProtocolLib")) BreakerSystem.MODIFIERS.add(getHardnessModifier());
-        this.locations = new CopyOnWriteArrayList<>();
     }
 
     public static class NoteBlockMechanicPaperListener implements Listener {
@@ -115,6 +111,9 @@ public class NoteBlockMechanicListener implements Listener {
             if (!VersionUtil.atOrAbove("1.19")) return;
             if (event.getEvent() != GameEvent.NOTE_BLOCK_PLAY) return;
             if (block.getType() != Material.NOTE_BLOCK) return;
+            // Prevent entities (players) from triggering the block to reappear after breaking it
+            // The 1 tick delay here is the problem
+            if (event.getEntity() != null) return;
             NoteBlock data = (NoteBlock) block.getBlockData().clone();
             OraxenPlugin.getScheduler().runDelayed(SchedulerType.SYNC, eLoc, taskInter -> block.setBlockData(data, false), 1L);
         }
@@ -270,18 +269,8 @@ public class NoteBlockMechanicListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBreakingCustomBlock(final BlockBreakEvent event) {
-        if (this.locations.contains(event.getBlock().getLocation())) {
-            event.setCancelled(true);
-            return;
-        }
-
         if (OraxenBlocks.isOraxenNoteBlock(event.getBlock())) {
-            this.locations.add(event.getBlock().getLocation());
             event.setDropItems(false);
-            OraxenPlugin.get().getServer().getRegionScheduler().runDelayed(OraxenPlugin.get(), event.getBlock().getLocation(), wp -> {
-                event.getBlock().getLocation().getBlock().setType(Material.AIR);
-                this.locations.remove(event.getBlock().getLocation());
-            }, 1L);
         }
 
         OraxenBlocks.remove(event.getBlock().getLocation(), event.getPlayer());

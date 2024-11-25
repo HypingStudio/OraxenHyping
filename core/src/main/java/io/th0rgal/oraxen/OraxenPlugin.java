@@ -1,6 +1,8 @@
 package io.th0rgal.oraxen;
 
 import com.comphenix.protocol.ProtocolLibrary;
+import com.tcoded.folialib.FoliaLib;
+import com.tcoded.folialib.impl.PlatformScheduler;
 import com.ticxo.playeranimator.PlayerAnimatorImpl;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
@@ -48,6 +50,7 @@ import java.util.jar.JarFile;
 public class OraxenPlugin extends JavaPlugin {
 
     private static OraxenPlugin oraxen;
+    private static FoliaLib foliaLib;
     private static Energie energie;
     private static GestureManager gestureManager;
     private ConfigsManager configsManager;
@@ -91,6 +94,7 @@ public class OraxenPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        foliaLib = new FoliaLib(this);
         energie = new Energie(this);
         CommandAPI.onEnable();
         ProtectionLib.init(this);
@@ -233,4 +237,9 @@ public class OraxenPlugin extends JavaPlugin {
     public ClickActionManager getClickActionManager() {
         return clickActionManager;
     }
+
+    public PlatformScheduler getFoliaScheduler() {
+        return foliaLib.getScheduler();
+    }
+
 }
