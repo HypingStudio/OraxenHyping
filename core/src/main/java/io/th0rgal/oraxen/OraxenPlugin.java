@@ -112,14 +112,15 @@ public class OraxenPlugin extends JavaPlugin {
             if (Settings.FORMAT_INVENTORY_TITLES.toBool())
                 ProtocolLibrary.getProtocolManager().addPacketListener(new InventoryPacketListener());
             ProtocolLibrary.getProtocolManager().addPacketListener(new TitlePacketListener());
-        } else Logs.logWarning("ProtocolLib is not on your server, some features will not work");
+        } else {
+            Message.MISSING_PROTOCOLLIB.log();
+        }
         Bukkit.getPluginManager().registerEvents(new CustomArmorListener(), this);
         NMSHandlers.setup();
 
-
         resourcePack = new ResourcePack();
         MechanicsManager.registerNativeMechanics();
-        //CustomBlockData.registerListener(this); //Handle this manually
+        // CustomBlockData.registerListener(this); //Handle this manually
         hudManager = new HudManager(configsManager);
         fontManager = new FontManager(configsManager);
         soundManager = new SoundManager(configsManager.getSound());
@@ -133,7 +134,8 @@ public class OraxenPlugin extends JavaPlugin {
         resourcePack.generate();
         RecipesManager.load(this);
         invManager = new InvManager();
-        if (!VersionUtil.atOrAbove("1.21.2")) ArmorEquipEvent.registerListener(this);
+        if (!VersionUtil.atOrAbove("1.21.2"))
+            ArmorEquipEvent.registerListener(this);
         new CommandsManager().loadCommands();
         postLoading();
         try {
@@ -141,8 +143,10 @@ public class OraxenPlugin extends JavaPlugin {
         } catch (Exception ignore) {
         }
         CompatibilitiesManager.enableNativeCompatibilities();
-        if (VersionUtil.isCompiled()) NoticeUtils.compileNotice();
-        if (VersionUtil.isLeaked()) NoticeUtils.leakNotice();
+        if (VersionUtil.isCompiled())
+            NoticeUtils.compileNotice();
+        if (VersionUtil.isLeaked())
+            NoticeUtils.leakNotice();
     }
 
     private void postLoading() {
@@ -158,7 +162,8 @@ public class OraxenPlugin extends JavaPlugin {
         HandlerList.unregisterAll(this);
         FurnitureFactory.unregisterEvolution();
         for (Player player : Bukkit.getOnlinePlayers())
-            if (GlyphHandlers.isNms()) NMSHandlers.getHandler().glyphHandler().uninject(player);
+            if (GlyphHandlers.isNms())
+                NMSHandlers.getHandler().glyphHandler().uninject(player);
 
         CompatibilitiesManager.disableCompatibilities();
         CommandAPI.onDisable();
