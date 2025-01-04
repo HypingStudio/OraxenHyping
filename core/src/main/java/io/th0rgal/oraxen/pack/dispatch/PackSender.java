@@ -1,12 +1,10 @@
 package io.th0rgal.oraxen.pack.dispatch;
 
-import fr.euphyllia.energie.model.SchedulerType;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.config.Message;
 import io.th0rgal.oraxen.config.Settings;
 import io.th0rgal.oraxen.pack.upload.hosts.HostingProvider;
 import io.th0rgal.oraxen.utils.AdventureUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public abstract class PackSender {
@@ -31,7 +29,7 @@ public abstract class PackSender {
                     AdventureUtils.tagResolver("pack_url", hostingProvider.getPackURL()),
                     AdventureUtils.tagResolver("player", player.getName()));
         else
-            OraxenPlugin.getScheduler().runDelayed(SchedulerType.ASYNC,
+            OraxenPlugin.getScheduler().runLaterAsync(
                     taskInter -> Message.COMMAND_JOIN_MESSAGE.send(player,
                             AdventureUtils.tagResolver("pack_url", hostingProvider.getPackURL()),
                             AdventureUtils.tagResolver("player", player.getName()))

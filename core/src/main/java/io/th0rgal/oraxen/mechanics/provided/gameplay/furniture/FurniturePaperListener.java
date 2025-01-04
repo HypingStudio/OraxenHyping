@@ -2,10 +2,8 @@ package io.th0rgal.oraxen.mechanics.provided.gameplay.furniture;
 
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import com.jeff_media.customblockdata.CustomBlockData;
-import fr.euphyllia.energie.model.SchedulerType;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenFurniture;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -26,7 +24,7 @@ public class FurniturePaperListener implements Listener {
         List<Block> barriers = mechanic.getBarriers().stream().map(b -> entity.getLocation().add(b.toLocation(entity.getWorld())).getBlock()).toList();
         // If the baseEntity does not exist, it means furniture is broken
         // and interaction entity was left behind, or furniture is outdated
-        OraxenPlugin.getScheduler().runDelayed(SchedulerType.SYNC, entity, taskInter -> {
+        OraxenPlugin.getScheduler().runAtEntityLater(entity, taskInter -> {
             if (baseEntity == null) {
                 if (!entity.isDead()) entity.remove();
                 barriers.forEach(b -> {
@@ -36,6 +34,6 @@ public class FurniturePaperListener implements Listener {
                     }
                 });
             }
-        }, null, 1L);
+        }, 1L);
     }
 }

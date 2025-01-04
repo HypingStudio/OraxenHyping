@@ -12,7 +12,6 @@ import com.sk89q.worldedit.extent.AbstractDelegateExtent;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.sk89q.worldedit.world.block.BlockStateHolder;
-import fr.euphyllia.energie.model.SchedulerType;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.OraxenFurniture;
@@ -82,12 +81,12 @@ public class WorldEditHandlers {
                 compoundTagMap.put("BukkitValues", new CompoundTag(bukkitValues));
                 baseEntity.setNbtData(new CompoundTag(compoundTagMap));
 
-                OraxenPlugin.getScheduler().scheduleSyncDelayed(SchedulerType.SYNC, bukkitLocation, (taskInter) -> {
+                OraxenPlugin.getScheduler().runAtLocationLater(bukkitLocation, (taskInter) -> {
                     List<org.bukkit.entity.Entity> entities = bukkitLocation.getNearbyEntities(0.5, 0.5, 0.5).stream().toList();
                     List<org.bukkit.entity.Entity> nearbyEntities = entities.stream().sorted(Comparator.comparingDouble(entity -> entity.getLocation().distance(bukkitLocation))).toList();
                     nearbyEntities.stream().findFirst().ifPresent(e ->
                             mechanic.setEntityData(e, e.getLocation().getYaw(), BlockFace.NORTH));
-                }, 1L);
+                }, 1);
 
                 return super.createEntity(location, baseEntity);
             }
@@ -100,11 +99,11 @@ public class WorldEditHandlers {
                 Mechanic mechanic = OraxenBlocks.getOraxenBlock(blockData);
                 if (blockData.getMaterial() == Material.NOTE_BLOCK) {
                     if (mechanic != null && Settings.WORLDEDIT_NOTEBLOCKS.toBool()) {
-                        OraxenPlugin.getScheduler().scheduleSyncDelayed(SchedulerType.SYNC, loc, schedulerTask -> OraxenBlocks.place(mechanic.getItemID(), loc), 1L);
+                        OraxenPlugin.getScheduler().runAtLocationLater(loc, schedulerTask -> OraxenBlocks.place(mechanic.getItemID(), loc), 1L);
                     }
                 } else if (blockData.getMaterial() == Material.TRIPWIRE) {
                     if (mechanic != null && Settings.WORLDEDIT_STRINGBLOCKS.toBool()) {
-                        OraxenPlugin.getScheduler().scheduleSyncDelayed(SchedulerType.SYNC, loc, schedulerTask -> OraxenBlocks.place(mechanic.getItemID(), loc), 1L);
+                        OraxenPlugin.getScheduler().runAtLocationLater(loc, schedulerTask -> OraxenBlocks.place(mechanic.getItemID(), loc), 1L);
                     }
                 } else {
                     if (world == null) return super.setBlock(pos, block);
@@ -115,7 +114,7 @@ public class WorldEditHandlers {
                     if (replacingMechanic instanceof NoteBlockMechanic && !Settings.WORLDEDIT_NOTEBLOCKS.toBool())
                         return super.setBlock(pos, block);
 
-                    OraxenPlugin.getScheduler().scheduleSyncDelayed(SchedulerType.SYNC, loc, (taskInter) -> OraxenBlocks.remove(loc, null), 1L);
+                    OraxenPlugin.getScheduler().runAtLocationLater(loc, (taskInter) -> OraxenBlocks.remove(loc, null), 1L);
                 }
 
                 return super.setBlock(pos, block);

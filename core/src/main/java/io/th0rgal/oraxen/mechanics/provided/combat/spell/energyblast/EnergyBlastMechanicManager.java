@@ -1,13 +1,12 @@
 package io.th0rgal.oraxen.mechanics.provided.combat.spell.energyblast;
 
-import fr.euphyllia.energie.model.SchedulerType;
-import fr.euphyllia.energie.utils.SchedulerTaskRunnable;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.mechanics.MechanicFactory;
 import io.th0rgal.oraxen.utils.BlockHelpers;
 import io.th0rgal.oraxen.utils.EventUtils;
 import io.th0rgal.oraxen.utils.VectorUtils;
+import io.th0rgal.oraxen.utils.timers.CustomTask;
 import io.th0rgal.oraxen.utils.timers.Timer;
 import io.th0rgal.oraxen.utils.wrappers.ParticleWrapper;
 import io.th0rgal.protectionlib.ProtectionLib;
@@ -78,7 +77,7 @@ public class EnergyBlastMechanicManager implements Listener {
 
 
     private void playEffect(Player player, EnergyBlastMechanic mechanic) {
-        new SchedulerTaskRunnable() {
+        new CustomTask() {
             final Vector dir = player.getLocation().getDirection().normalize();
             static final int circlePoints = 360;
             double radius = 2;
@@ -138,7 +137,7 @@ public class EnergyBlastMechanicManager implements Listener {
                     }
 
             }
-        }.runAtFixedRate(OraxenPlugin.get(),  SchedulerType.SYNC, player, null, 0, 1);
+        }.runAtFixedRate(player, 1, 1);
     }
 
     private void spawnParticle(World world, Location location, EnergyBlastMechanic mechanic) {

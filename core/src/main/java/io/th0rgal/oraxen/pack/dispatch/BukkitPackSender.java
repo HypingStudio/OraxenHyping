@@ -1,6 +1,5 @@
 package io.th0rgal.oraxen.pack.dispatch;
 
-import fr.euphyllia.energie.model.SchedulerType;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.config.Settings;
 import io.th0rgal.oraxen.pack.upload.hosts.HostingProvider;
@@ -48,7 +47,7 @@ public class BukkitPackSender extends PackSender implements Listener {
         if (!Settings.SEND_PACK.toBool()) return;
         int delay = (int) Settings.SEND_PACK_DELAY.getValue();
         if (delay <= 0) sendPack(player);
-        else OraxenPlugin.getScheduler().runDelayed(SchedulerType.ASYNC, taskInter ->
+        else OraxenPlugin.getScheduler().runLaterAsync(taskInter ->
                 sendPack(player), delay * 20L);
     }
 }

@@ -1,7 +1,6 @@
 package io.th0rgal.oraxen.mechanics.provided.gameplay.furniture;
 
-import fr.euphyllia.energie.model.SchedulerTaskInter;
-import fr.euphyllia.energie.model.SchedulerType;
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.mechanics.Mechanic;
 import io.th0rgal.oraxen.mechanics.MechanicFactory;
@@ -10,7 +9,6 @@ import io.th0rgal.oraxen.mechanics.provided.gameplay.furniture.evolution.Evoluti
 import io.th0rgal.oraxen.mechanics.provided.gameplay.furniture.evolution.EvolutionTask;
 import io.th0rgal.oraxen.mechanics.provided.gameplay.furniture.jukebox.JukeboxListener;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
 
@@ -79,7 +77,7 @@ public class FurnitureFactory extends MechanicFactory {
         if (evolutionTask != null)
             evolutionTask.cancel();
         evolutionTask = new EvolutionTask(this, evolutionCheckDelay);
-        SchedulerTaskInter task = evolutionTask.runAtFixedRate(OraxenPlugin.get(), SchedulerType.SYNC,0, evolutionCheckDelay);
+        WrappedTask task = evolutionTask.runTimer(0, evolutionCheckDelay);
         MechanicsManager.registerTask(getMechanicID(), task);
         evolvingFurnitures = true;
     }

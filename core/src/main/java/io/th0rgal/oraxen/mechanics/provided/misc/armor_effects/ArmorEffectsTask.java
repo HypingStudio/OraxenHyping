@@ -1,19 +1,18 @@
 package io.th0rgal.oraxen.mechanics.provided.misc.armor_effects;
 
-import fr.euphyllia.energie.model.SchedulerType;
-import fr.euphyllia.energie.utils.SchedulerTaskRunnable;
 import io.th0rgal.oraxen.OraxenPlugin;
+import io.th0rgal.oraxen.utils.timers.CustomTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public class ArmorEffectsTask extends SchedulerTaskRunnable {
+public class ArmorEffectsTask extends CustomTask {
 
     @Override
     public void run() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            OraxenPlugin.getScheduler().runTask(SchedulerType.SYNC, player, schedulerTaskInter -> {
+            OraxenPlugin.getScheduler().runAtEntity(player, schedulerTaskInter -> {
                 ArmorEffectsMechanic.addEffects(player);
-            }, null);
+            });
         }
     }
 }

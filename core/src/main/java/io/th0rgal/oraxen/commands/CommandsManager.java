@@ -2,7 +2,6 @@ package io.th0rgal.oraxen.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
-import fr.euphyllia.energie.model.SchedulerType;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.config.Message;
@@ -107,7 +106,7 @@ public class CommandsManager {
 
                     for (final Player target : targets) {
                         Map<Integer, ItemStack> output = target.getInventory().addItem(items);
-                        OraxenPlugin.getScheduler().runTask(SchedulerType.SYNC, target.getLocation(), task -> {
+                        OraxenPlugin.getScheduler().runAtLocation(target.getLocation(), task -> {
                             for (ItemStack stack : output.values()) {
                                 target.getWorld().dropItem(target.getLocation(), stack);
                             }

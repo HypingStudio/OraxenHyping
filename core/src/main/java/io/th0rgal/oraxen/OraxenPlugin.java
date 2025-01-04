@@ -6,9 +6,6 @@ import com.tcoded.folialib.impl.PlatformScheduler;
 import com.ticxo.playeranimator.PlayerAnimatorImpl;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
-import fr.euphyllia.energie.Energie;
-import fr.euphyllia.energie.model.Scheduler;
-import fr.euphyllia.energie.model.SchedulerType;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.api.events.OraxenItemsLoadedEvent;
 import io.th0rgal.oraxen.commands.CommandsManager;
@@ -51,7 +48,6 @@ public class OraxenPlugin extends JavaPlugin {
 
     private static OraxenPlugin oraxen;
     private static FoliaLib foliaLib;
-    private static Energie energie;
     private static GestureManager gestureManager;
     private ConfigsManager configsManager;
     private ResourcesManager resourceManager;
@@ -73,8 +69,8 @@ public class OraxenPlugin extends JavaPlugin {
         return oraxen;
     }
 
-    public @NotNull static Scheduler getScheduler() {
-        return energie.getMinecraftScheduler();
+    public @NotNull static PlatformScheduler getScheduler() {
+        return foliaLib.getScheduler();
     }
 
 
@@ -95,10 +91,9 @@ public class OraxenPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         foliaLib = new FoliaLib(this);
-        energie = new Energie(this);
         CommandAPI.onEnable();
         ProtectionLib.init(this);
-        if (!Energie.isFolia()) {
+        if (!foliaLib.isFolia()) {
             if (!VersionUtil.atOrAbove("1.20.3")) PlayerAnimatorImpl.initialize(this);
         }
         audience = BukkitAudiences.create(this);
@@ -149,9 +144,9 @@ public class OraxenPlugin extends JavaPlugin {
     }
 
     private void postLoading() {
-        new Metrics(this, 5371);
+//        new Metrics(this, 5371);
         new LU().l();
-        getScheduler().runTask(SchedulerType.SYNC, schedulerTaskInter -> {
+        getScheduler().runNextTick(schedulerTaskInter -> {
             Bukkit.getPluginManager().callEvent(new OraxenItemsLoadedEvent());
         });
     }
@@ -240,6 +235,10 @@ public class OraxenPlugin extends JavaPlugin {
 
     public PlatformScheduler getFoliaScheduler() {
         return foliaLib.getScheduler();
+    }
+
+    public FoliaLib getFoliaLib() {
+        return foliaLib;
     }
 
 }

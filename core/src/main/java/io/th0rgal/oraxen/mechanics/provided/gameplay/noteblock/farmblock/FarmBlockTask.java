@@ -1,17 +1,15 @@
 package io.th0rgal.oraxen.mechanics.provided.gameplay.noteblock.farmblock;
 
 import com.jeff_media.customblockdata.CustomBlockData;
-import fr.euphyllia.energie.model.MultipleRecords;
-import fr.euphyllia.energie.model.SchedulerTaskInter;
-import fr.euphyllia.energie.model.SchedulerType;
-import fr.euphyllia.energie.utils.SchedulerTaskRunnable;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.mechanics.provided.gameplay.noteblock.NoteBlockMechanic;
 import io.th0rgal.oraxen.mechanics.provided.gameplay.noteblock.NoteBlockMechanicFactory;
 import io.th0rgal.oraxen.utils.BlockHelpers;
+import io.th0rgal.oraxen.utils.timers.CustomTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -19,7 +17,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import static io.th0rgal.oraxen.mechanics.provided.gameplay.noteblock.NoteBlockMechanic.FARMBLOCK_KEY;
 
-public class FarmBlockTask extends SchedulerTaskRunnable {
+public class FarmBlockTask extends CustomTask {
     private final int delay;
 
     public FarmBlockTask(int delay) {
@@ -64,7 +62,8 @@ public class FarmBlockTask extends SchedulerTaskRunnable {
     public void run() {
         for (World world : Bukkit.getWorlds())
             for (Chunk chunk : world.getLoadedChunks()) {
-                OraxenPlugin.getScheduler().runTask(SchedulerType.SYNC, new MultipleRecords.WorldChunk(world, chunk.getX(), chunk.getZ()), schedulerTaskInter -> {
+                Location loc = new Location(world, chunk.getX() << 4, 0, chunk.getZ() << 4);
+                OraxenPlugin.getScheduler().runAtLocation(loc, schedulerTaskInter -> {
                     CustomBlockData.getBlocksWithCustomData(OraxenPlugin.get(), chunk).forEach(block ->
                             updateBlock(block, BlockHelpers.getPDC(block)));
                 });

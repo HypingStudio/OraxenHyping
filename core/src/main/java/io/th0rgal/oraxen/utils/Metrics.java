@@ -1,6 +1,5 @@
 package io.th0rgal.oraxen.utils;
 
-import fr.euphyllia.energie.model.SchedulerType;
 import io.th0rgal.oraxen.OraxenPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -69,7 +68,7 @@ public class Metrics {
                         this::appendPlatformData,
                         this::appendServiceData,
                         submitDataTask -> OraxenPlugin.getScheduler()
-                                .runTask(SchedulerType.SYNC, schedulerTask -> submitDataTask.run()),
+                                .runAsync(schedulerTask -> submitDataTask.run()),
                         plugin::isEnabled,
                         (message, error) -> this.plugin.getLogger().log(Level.WARNING, message, error),
                         (message) -> this.plugin.getLogger().log(Level.INFO, message),

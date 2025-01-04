@@ -1,13 +1,13 @@
 package io.th0rgal.oraxen.mechanics.provided.gameplay.stringblock.sapling;
 
 import com.jeff_media.customblockdata.CustomBlockData;
-import fr.euphyllia.energie.utils.SchedulerTaskRunnable;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.compatibilities.provided.worldedit.WrappedWorldEdit;
 import io.th0rgal.oraxen.mechanics.provided.gameplay.stringblock.StringBlockMechanic;
 import io.th0rgal.oraxen.utils.BlockHelpers;
 import io.th0rgal.oraxen.utils.PluginUtils;
+import io.th0rgal.oraxen.utils.timers.CustomTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -18,7 +18,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import static io.th0rgal.oraxen.mechanics.provided.gameplay.stringblock.sapling.SaplingMechanic.SAPLING_KEY;
 
-public class SaplingTask extends SchedulerTaskRunnable {
+public class SaplingTask extends CustomTask {
 
     private final int delay;
 

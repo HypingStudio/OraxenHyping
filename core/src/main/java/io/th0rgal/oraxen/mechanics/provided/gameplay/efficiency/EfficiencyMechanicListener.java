@@ -1,14 +1,12 @@
 package io.th0rgal.oraxen.mechanics.provided.gameplay.efficiency;
 
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import fr.euphyllia.energie.model.SchedulerType;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenItems;
 import org.bukkit.GameMode;
@@ -45,14 +43,14 @@ public class EfficiencyMechanicListener extends PacketAdapter {
             type = EnumWrappers.PlayerDigType.SWAP_HELD_ITEMS;
         }
         if (type == EnumWrappers.PlayerDigType.START_DESTROY_BLOCK)
-                    OraxenPlugin.getScheduler().runTask(SchedulerType.SYNC, player, task ->
+                    OraxenPlugin.getScheduler().runAtEntity(player, task ->
                             player.addPotionEffect(new PotionEffect(mechanic.getType(),
                                     20 * 60 * 5,
                                     mechanic.getAmount() - 1,
-                                    false, false, false)), null);
+                                    false, false, false)));
                 else
-                    OraxenPlugin.getScheduler().runTask(SchedulerType.SYNC, player, task ->
-                            player.removePotionEffect(mechanic.getType()), null);
+                    OraxenPlugin.getScheduler().runAtEntity(player, task ->
+                            player.removePotionEffect(mechanic.getType()));
     }
 
 }

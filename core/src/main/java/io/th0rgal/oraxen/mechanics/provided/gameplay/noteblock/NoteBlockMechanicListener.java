@@ -1,7 +1,6 @@
 package io.th0rgal.oraxen.mechanics.provided.gameplay.noteblock;
 
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
-import fr.euphyllia.energie.model.SchedulerType;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.OraxenItems;
@@ -115,7 +114,7 @@ public class NoteBlockMechanicListener implements Listener {
             // The 1 tick delay here is the problem
             if (event.getEntity() != null) return;
             NoteBlock data = (NoteBlock) block.getBlockData().clone();
-            OraxenPlugin.getScheduler().runDelayed(SchedulerType.SYNC, eLoc, taskInter -> block.setBlockData(data, false), 1L);
+            OraxenPlugin.getScheduler().runAtLocationLater(eLoc, taskInter -> block.setBlockData(data, false), 1L);
         }
 
         public void updateAndCheck(Block block) {

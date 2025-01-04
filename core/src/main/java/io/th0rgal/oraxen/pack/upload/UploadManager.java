@@ -1,6 +1,5 @@
 package io.th0rgal.oraxen.pack.upload;
 
-import fr.euphyllia.energie.model.SchedulerType;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.events.OraxenPackPreUploadEvent;
 import io.th0rgal.oraxen.api.events.OraxenPackUploadEvent;
@@ -60,7 +59,7 @@ public class UploadManager {
         }
 
         final long time = System.currentTimeMillis();
-        OraxenPlugin.getScheduler().runTask(SchedulerType.ASYNC, taskInter -> {
+        OraxenPlugin.getScheduler().runAsync(taskInter -> {
             EventUtils.callEvent(new OraxenPackPreUploadEvent());
 
             Message.PACK_UPLOADING.log();
@@ -70,7 +69,7 @@ public class UploadManager {
             }
 
             OraxenPackUploadEvent uploadEvent = new OraxenPackUploadEvent(hostingProvider);
-            OraxenPlugin.getScheduler().scheduleSyncDelayed(SchedulerType.SYNC, (taskInter1) ->
+            OraxenPlugin.getScheduler().runNextTick((taskInter1) ->
                     Bukkit.getPluginManager().callEvent(uploadEvent));
 
             Message.PACK_UPLOADED.log(

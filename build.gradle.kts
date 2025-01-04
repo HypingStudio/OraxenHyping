@@ -110,7 +110,7 @@ allprojects {
         implementation("org.jetbrains:annotations:24.1.0") { isTransitive = false }
         implementation("dev.triumphteam:triumph-gui:3.1.10") { exclude("net.kyori") }
         implementation("com.ticxo:PlayerAnimator:R1.2.8") { isChanging = true }
-        implementation("com.github.Euphillya:Energie:1.2.0")
+//        implementation("com.github.Euphillya:Energie:1.2.0")
         implementation("com.github.TechnicallyCoded:FoliaLib:0.4.3")
 
         implementation("me.gabytm.util:actions-spigot:$actionsVersion") { exclude(group = "com.google.guava") }
@@ -165,7 +165,7 @@ tasks {
         //relocate("com.udojava.evalex", "io.th0rgal.oraxen.shaded.evalex")
         //relocate("com.ticxo.playeranimator", "io.th0rgal.oraxen.shaded.playeranimator")
         //relocate("dev.jorel", "io.th0rgal.oraxen.shaded")
-        relocate("fr.euphyllia.energie", "io.th0rgal.oraxen.shaded.energie")
+//        relocate("fr.euphyllia.energie", "io.th0rgal.oraxen.shaded.energie")
         relocate("com.tcoded.folialib", "io.th0rgal.oraxen.shaded.folialib")
 
         manifest {

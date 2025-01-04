@@ -1,7 +1,6 @@
 package io.th0rgal.oraxen.mechanics.provided.gameplay.noteblock;
 
-import fr.euphyllia.energie.model.SchedulerTaskInter;
-import fr.euphyllia.energie.model.SchedulerType;
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.events.noteblock.OraxenNoteBlockBreakEvent;
@@ -24,7 +23,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.world.GenericGameEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,11 +31,11 @@ import static io.th0rgal.oraxen.utils.BlockHelpers.isLoaded;
 import static io.th0rgal.oraxen.utils.blocksounds.BlockSounds.*;
 
 public class NoteBlockSoundListener implements Listener {
-    private final Map<Location, SchedulerTaskInter> breakerPlaySound = new HashMap<>();
+    private final Map<Location, WrappedTask> breakerPlaySound = new HashMap<>();
 
     @EventHandler
     public void onWorldUnload(WorldUnloadEvent event) {
-        for (Map.Entry<Location, SchedulerTaskInter> entry : breakerPlaySound.entrySet()) {
+        for (Map.Entry<Location, WrappedTask> entry : breakerPlaySound.entrySet()) {
             if (entry.getKey().isWorldLoaded() || entry.getValue().isCancelled()) continue;
             entry.getValue().cancel();
             breakerPlaySound.remove(entry.getKey());
@@ -91,7 +89,7 @@ public class NoteBlockSoundListener implements Listener {
                     task.run();
                 } else {
                     OraxenPlugin.get().getLogger().severe("The block " + block.getType() + " at " + location + " is not owned by the current region! (NoteBlockSoundListener)");
-                    OraxenPlugin.getScheduler().runDelayed(SchedulerType.SYNC, location, taskInter -> task.run(), 1);
+                    OraxenPlugin.getScheduler().runAtLocationLater(location, taskInter -> task.run(), 1);
                 }
                 return;
             }
@@ -99,7 +97,7 @@ public class NoteBlockSoundListener implements Listener {
         if (soundGroup.getHitSound() != Sound.BLOCK_WOOD_HIT) return;
         if (breakerPlaySound.containsKey(location)) return;
 
-        SchedulerTaskInter task = OraxenPlugin.getScheduler().runAtFixedRate(SchedulerType.SYNC, location, taskInter -> {
+        WrappedTask task = OraxenPlugin.getScheduler().runAtLocationTimer(location, () -> {
             BlockHelpers.playCustomBlockSound(location, VANILLA_WOOD_HIT, VANILLA_HIT_VOLUME, VANILLA_HIT_PITCH);
         }, 2L, 4L);
         breakerPlaySound.put(location, task);

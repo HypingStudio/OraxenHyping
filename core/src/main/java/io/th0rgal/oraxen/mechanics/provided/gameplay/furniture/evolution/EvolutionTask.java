@@ -1,9 +1,5 @@
 package io.th0rgal.oraxen.mechanics.provided.gameplay.furniture.evolution;
 
-import fr.euphyllia.energie.Energie;
-import fr.euphyllia.energie.model.MultipleRecords;
-import fr.euphyllia.energie.model.SchedulerType;
-import fr.euphyllia.energie.utils.SchedulerTaskRunnable;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.OraxenFurniture;
@@ -11,6 +7,7 @@ import io.th0rgal.oraxen.mechanics.provided.gameplay.furniture.FurnitureFactory;
 import io.th0rgal.oraxen.mechanics.provided.gameplay.furniture.FurnitureMechanic;
 import io.th0rgal.oraxen.mechanics.provided.gameplay.noteblock.NoteBlockMechanic;
 import io.th0rgal.oraxen.mechanics.provided.gameplay.noteblock.farmblock.FarmBlockDryout;
+import io.th0rgal.oraxen.utils.timers.CustomTask;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -20,7 +17,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import static io.th0rgal.oraxen.mechanics.provided.gameplay.furniture.FurnitureMechanic.EVOLUTION_KEY;
 
-public class EvolutionTask extends SchedulerTaskRunnable {
+public class EvolutionTask extends CustomTask {
 
     private final FurnitureFactory furnitureFactory;
     private final int delay;
@@ -34,8 +31,9 @@ public class EvolutionTask extends SchedulerTaskRunnable {
     public void run() {
         for (World world : Bukkit.getWorlds()) {
             for (Chunk chunk : world.getLoadedChunks()) {
-                OraxenPlugin.getScheduler().runTask(SchedulerType.SYNC, new MultipleRecords.WorldChunk(world, chunk.getX(), chunk.getZ()), schedulerTaskInter -> {
-                    if (Energie.isFolia()) {
+                Location location = new Location(world, chunk.getX() << 4, 0, chunk.getZ() << 4);
+                OraxenPlugin.getScheduler().runAtLocation(location, schedulerTaskInter -> {
+                    if (OraxenPlugin.get().getFoliaLib().isFolia()) {
                         for (Entity entity : chunk.getEntities()) {
                             if (!FurnitureMechanic.FurnitureType.furnitureEntity().contains(entity.getType())) continue;
                             this.evolutionEntity(world, entity);
@@ -52,7 +50,7 @@ public class EvolutionTask extends SchedulerTaskRunnable {
     }
 
     private void evolutionEntity(World world, Entity entity) {
-        OraxenPlugin.getScheduler().runTask(SchedulerType.SYNC, entity, schedulerTaskInter1 -> {
+        OraxenPlugin.getScheduler().runAtEntity(entity, schedulerTaskInter1 -> {
             Location entityLoc = entity.getLocation();
             PersistentDataContainer pdc = entity.getPersistentDataContainer();
             if (!pdc.has(EVOLUTION_KEY, PersistentDataType.INTEGER)) return;
@@ -108,6 +106,6 @@ public class EvolutionTask extends SchedulerTaskRunnable {
                 //OraxenFurniture.place(entity.getLocation(), evolution.getNextStage(), FurnitureMechanic.yawToRotation(entity.getLocation().getYaw()), entity.getFacing());
                 //nextMechanic.place(entityLoc, entityLoc.getYaw(), FurnitureMechanic.yawToRotation(entityLoc.getYaw()), entity.getFacing());
             } else pdc.set(FurnitureMechanic.EVOLUTION_KEY, PersistentDataType.INTEGER, evolutionStep);
-        }, null);
+        });
     }
 }

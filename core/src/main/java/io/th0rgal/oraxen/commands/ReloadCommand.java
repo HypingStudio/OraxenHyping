@@ -3,7 +3,6 @@ package io.th0rgal.oraxen.commands;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.TextArgument;
-import fr.euphyllia.energie.model.SchedulerType;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenFurniture;
 import io.th0rgal.oraxen.api.OraxenItems;
@@ -37,7 +36,7 @@ public class ReloadCommand {
             Logs.logInfo("Updating all items in player-inventories...");
             for (Player player : Bukkit.getServer().getOnlinePlayers()) {
                 PlayerInventory inventory = player.getInventory();
-                OraxenPlugin.getScheduler().runTask(SchedulerType.ASYNC, schedulerTaskInter -> {
+                OraxenPlugin.getScheduler().runNextTick(schedulerTaskInter -> {
                     for (int i = 0; i < inventory.getSize(); i++) {
                         ItemStack oldItem = inventory.getItem(i);
                         ItemStack newItem = ItemUpdater.updateItem(oldItem);

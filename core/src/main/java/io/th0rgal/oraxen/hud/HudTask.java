@@ -1,14 +1,14 @@
 package io.th0rgal.oraxen.hud;
 
-import fr.euphyllia.energie.utils.SchedulerTaskRunnable;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.utils.EntityUtils;
+import io.th0rgal.oraxen.utils.timers.CustomTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class HudTask extends SchedulerTaskRunnable {
+public class HudTask extends CustomTask {
 
     private final HudManager manager = OraxenPlugin.get().getHudManager();
 
