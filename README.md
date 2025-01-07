@@ -1,8 +1,9 @@
-<h1 align="center">
+<div align="center">
+  <br>
   <br>
   <img src="https://github.com/HypingStudio/OraxenHyping/blob/readme/.github/hyping-oraxen.png?raw=true" alt="oraxen.com logo" width="256">
   <br>
-</h1>
+</div>
 
 <h4 align="center">☄️ Source code of Hyping's Oraxen Folia fork.</h4>
 
