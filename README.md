@@ -1,10 +1,11 @@
-<h1 align="center">
+<div align="center">
   <br>
-  <img src="https://oraxen.com/logo.svg" alt="oraxen.com logo" width="256">
   <br>
-</h1>
+  <img src="https://github.com/HypingStudio/OraxenHyping/blob/readme/.github/hyping-oraxen.png?raw=true" alt="oraxen.com logo" width="256">
+  <br>
+</div>
 
-<h4 align="center">☄️ Source code of Hyping's Oraxen Folia fork, made with love in Java.</h4>
+<h4 align="center">☄️ Source code of Hyping's Oraxen Folia fork.</h4>
 
 
 ## What is it?
