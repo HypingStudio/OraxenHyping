@@ -249,7 +249,8 @@ public class StringBlockMechanicListener implements Listener {
                 if (item.getType().toString().endsWith("SLAB"))
                     continue;
 
-                makePlayerPlaceBlock(player, event.getHand(), item, placedAgainst, event.getBlockFace(), Bukkit.createBlockData(item.getType()));
+                makePlayerPlaceBlock(player, event.getHand(), item, placedAgainst, event.getBlockFace(),
+                        Bukkit.createBlockData(item.getType()));
                 OraxenPlugin.getFoliaScheduler().runAtLocationLater(placedAgainst.getLocation(), Runnable ->
                         fixClientsideUpdate(placedAgainst.getLocation()), 1L);
             }
