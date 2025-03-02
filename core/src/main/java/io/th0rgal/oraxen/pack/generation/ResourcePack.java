@@ -141,7 +141,7 @@ public class ResourcePack {
 
         generateSound(output);
 
-        OraxenPlugin.getScheduler().runNextTick(task -> {
+        OraxenPlugin.getFoliaScheduler().runNextTick(task -> {
             OraxenPackGeneratedEvent event = new OraxenPackGeneratedEvent(output);
             EventUtils.callEvent(event);
             ZipUtils.writeZipFile(pack, event.getOutput());

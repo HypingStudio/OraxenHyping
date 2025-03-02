@@ -29,7 +29,7 @@ public abstract class PackSender {
                     AdventureUtils.tagResolver("pack_url", hostingProvider.getPackURL()),
                     AdventureUtils.tagResolver("player", player.getName()));
         else
-            OraxenPlugin.getScheduler().runLaterAsync(
+            OraxenPlugin.getFoliaScheduler().runLaterAsync(
                     taskInter -> Message.COMMAND_JOIN_MESSAGE.send(player,
                             AdventureUtils.tagResolver("pack_url", hostingProvider.getPackURL()),
                             AdventureUtils.tagResolver("player", player.getName()))

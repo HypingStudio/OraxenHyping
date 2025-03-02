@@ -258,7 +258,7 @@ public class StorageMechanic {
         // Slight delay to catch stacks sometimes moving too fast
         gui.setDefaultClickAction(event -> {
             if (event.getCursor() != null && event.getCursor().getType() != Material.AIR || event.getCurrentItem() != null) {
-                OraxenPlugin.getScheduler().runAtEntityLater(player, taskInter ->
+                OraxenPlugin.getFoliaScheduler().runAtEntityLater(player, taskInter ->
                         storagePDC.set(STORAGE_KEY, DataType.ITEM_STACK_ARRAY, gui.getInventory().getContents()), null, 3L);
             }
         });
@@ -288,7 +288,7 @@ public class StorageMechanic {
         // Slight delay to catch stacks sometimes moving too fast
         gui.setDefaultClickAction(event -> {
             if (event.getCursor() != null && event.getCursor().getType() != Material.AIR || event.getCurrentItem() != null) {
-                OraxenPlugin.getScheduler().runAtLocationLater(location, taskInter ->
+                OraxenPlugin.getFoliaScheduler().runAtLocationLater(location, taskInter ->
                         storagePDC.set(STORAGE_KEY, DataType.ITEM_STACK_ARRAY, gui.getInventory().getContents()), 3L);
             }
         });
@@ -320,7 +320,7 @@ public class StorageMechanic {
         // Slight delay to catch stacks sometimes moving too fast
         gui.setDefaultClickAction(event -> {
             if (event.getCursor() != null && event.getCursor().getType() != Material.AIR || event.getCurrentItem() != null) {
-                OraxenPlugin.getScheduler().runAtEntityLater(baseEntity, taskInter ->
+                OraxenPlugin.getFoliaScheduler().runAtEntityLater(baseEntity, taskInter ->
                         storagePDC.set(STORAGE_KEY, DataType.ITEM_STACK_ARRAY, gui.getInventory().getContents()), null, 3L);
             }
         });

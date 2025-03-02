@@ -10,7 +10,7 @@ public class ArmorEffectsTask extends CustomTask {
     @Override
     public void run() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            OraxenPlugin.getScheduler().runAtEntity(player, schedulerTaskInter -> {
+            OraxenPlugin.getFoliaScheduler().runAtEntity(player, schedulerTaskInter -> {
                 ArmorEffectsMechanic.addEffects(player);
             });
         }

@@ -1,6 +1,8 @@
 package io.th0rgal.oraxen;
 
 import com.comphenix.protocol.ProtocolLibrary;
+import com.tcoded.folialib.FoliaLib;
+import com.tcoded.folialib.impl.PlatformScheduler;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import fr.euphyllia.energie.Energie;
@@ -47,6 +49,7 @@ public class OraxenPlugin extends JavaPlugin {
 
     private static OraxenPlugin oraxen;
     private static Energie energie;
+    private static FoliaLib foliaLib;
     private ConfigsManager configsManager;
     private ResourcesManager resourceManager;
     private BukkitAudiences audience;
@@ -71,6 +74,9 @@ public class OraxenPlugin extends JavaPlugin {
         return energie.getMinecraftScheduler();
     }
 
+    public @NotNull static PlatformScheduler getFoliaScheduler() {
+        return foliaLib.getScheduler();
+    }
 
     @Nullable
     public static JarFile getJarFile() {
@@ -89,6 +95,8 @@ public class OraxenPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         energie = new Energie(this);
+        foliaLib = new FoliaLib(this);
+
         CommandAPI.onEnable();
         ProtectionLib.init(this);
         audience = BukkitAudiences.create(this);
@@ -221,5 +229,9 @@ public class OraxenPlugin extends JavaPlugin {
 
     public ClickActionManager getClickActionManager() {
         return clickActionManager;
+    }
+
+    public static FoliaLib getFoliaLib() {
+        return foliaLib;
     }
 }

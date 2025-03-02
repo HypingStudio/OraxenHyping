@@ -89,7 +89,7 @@ public class NoteBlockSoundListener implements Listener {
                     task.run();
                 } else {
                     OraxenPlugin.get().getLogger().severe("The block " + block.getType() + " at " + location + " is not owned by the current region! (NoteBlockSoundListener)");
-                    OraxenPlugin.getScheduler().runAtLocationLater(location, taskInter -> task.run(), 1);
+                    OraxenPlugin.getFoliaScheduler().runAtLocationLater(location, taskInter -> task.run(), 1);
                 }
                 return;
             }
@@ -97,7 +97,7 @@ public class NoteBlockSoundListener implements Listener {
         if (soundGroup.getHitSound() != Sound.BLOCK_WOOD_HIT) return;
         if (breakerPlaySound.containsKey(location)) return;
 
-        WrappedTask task = OraxenPlugin.getScheduler().runAtLocationTimer(location, () -> {
+        WrappedTask task = OraxenPlugin.getFoliaScheduler().runAtLocationTimer(location, () -> {
             BlockHelpers.playCustomBlockSound(location, VANILLA_WOOD_HIT, VANILLA_HIT_VOLUME, VANILLA_HIT_PITCH);
         }, 2L, 4L);
         breakerPlaySound.put(location, task);

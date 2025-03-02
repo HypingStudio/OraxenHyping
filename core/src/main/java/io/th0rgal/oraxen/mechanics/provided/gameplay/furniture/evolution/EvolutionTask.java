@@ -32,7 +32,7 @@ public class EvolutionTask extends CustomTask {
         for (World world : Bukkit.getWorlds()) {
             for (Chunk chunk : world.getLoadedChunks()) {
                 Location location = new Location(world, chunk.getX() << 4, 0, chunk.getZ() << 4);
-                OraxenPlugin.getScheduler().runAtLocation(location, schedulerTaskInter -> {
+                OraxenPlugin.getFoliaScheduler().runAtLocation(location, schedulerTaskInter -> {
                     if (OraxenPlugin.get().getFoliaLib().isFolia()) {
                         for (Entity entity : chunk.getEntities()) {
                             if (!FurnitureMechanic.FurnitureType.furnitureEntity().contains(entity.getType())) continue;
@@ -50,7 +50,7 @@ public class EvolutionTask extends CustomTask {
     }
 
     private void evolutionEntity(World world, Entity entity) {
-        OraxenPlugin.getScheduler().runAtEntity(entity, schedulerTaskInter1 -> {
+        OraxenPlugin.getFoliaScheduler().runAtEntity(entity, schedulerTaskInter1 -> {
             Location entityLoc = entity.getLocation();
             PersistentDataContainer pdc = entity.getPersistentDataContainer();
             if (!pdc.has(EVOLUTION_KEY, PersistentDataType.INTEGER)) return;

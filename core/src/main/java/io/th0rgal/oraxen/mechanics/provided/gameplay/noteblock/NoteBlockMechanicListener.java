@@ -115,7 +115,7 @@ public class NoteBlockMechanicListener implements Listener {
             // The 1 tick delay here is the problem
             if (event.getEntity() != null) return;
             NoteBlock data = (NoteBlock) block.getBlockData().clone();
-            OraxenPlugin.getScheduler().runAtLocationLater(eLoc, taskInter -> block.setBlockData(data, false), 1L);
+            OraxenPlugin.getFoliaScheduler().runAtLocationLater(eLoc, taskInter -> block.setBlockData(data, false), 1L);
         }
 
         public void updateAndCheck(Block block) {

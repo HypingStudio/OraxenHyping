@@ -67,7 +67,7 @@ public class Metrics {
                         enabled,
                         this::appendPlatformData,
                         this::appendServiceData,
-                        submitDataTask -> OraxenPlugin.getScheduler()
+                        submitDataTask -> OraxenPlugin.getFoliaScheduler()
                                 .runAsync(schedulerTask -> submitDataTask.run()),
                         plugin::isEnabled,
                         (message, error) -> this.plugin.getLogger().log(Level.WARNING, message, error),

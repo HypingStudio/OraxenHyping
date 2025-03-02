@@ -63,7 +63,7 @@ public class FarmBlockTask extends CustomTask {
         for (World world : Bukkit.getWorlds())
             for (Chunk chunk : world.getLoadedChunks()) {
                 Location loc = new Location(world, chunk.getX() << 4, 0, chunk.getZ() << 4);
-                OraxenPlugin.getScheduler().runAtLocation(loc, schedulerTaskInter -> {
+                OraxenPlugin.getFoliaScheduler().runAtLocation(loc, schedulerTaskInter -> {
                     CustomBlockData.getBlocksWithCustomData(OraxenPlugin.get(), chunk).forEach(block ->
                             updateBlock(block, BlockHelpers.getPDC(block)));
                 });

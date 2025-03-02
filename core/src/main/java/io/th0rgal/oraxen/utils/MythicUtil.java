@@ -2,6 +2,8 @@ package io.th0rgal.oraxen.utils;
 
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.bukkit.adapters.BukkitItemStack;
+import io.lumine.mythic.bukkit.adapters.item.ItemComponentBukkitItemStack;
+import io.lumine.mythic.bukkit.adapters.item.NbtBukkitItemStack;
 import io.lumine.mythic.bukkit.utils.numbers.RandomDouble;
 import io.lumine.mythic.core.drops.Drop;
 import io.lumine.mythic.core.drops.droppables.NothingDrop;
@@ -15,12 +17,13 @@ public class MythicUtil {
         // MythicMobs 5.7.0-SNAPSHOT changed this functionality
         // This is a workaround to support both old and new moving forward
 
-        BukkitItemStack itemStack;
+        BukkitItemStack itemStack = null;
         try {
-            itemStack = new BukkitItemStack(oraxenItem);
+            itemStack = new ItemComponentBukkitItemStack(oraxenItem);
         } catch (Exception e) {
             try {
-                itemStack = BukkitItemStack.class.getConstructor(String.class, MythicLineConfig.class, ItemStack.class).newInstance(line, config, oraxenItem);
+                // TODO
+                //itemStack = BukkitItemStack.class.getConstructor(String.class, MythicLineConfig.class, ItemStack.class).newInstance(line, config, oraxenItem);
             } catch (Exception e2) {
                 return new NothingDrop(line, config, amount.get());
             }

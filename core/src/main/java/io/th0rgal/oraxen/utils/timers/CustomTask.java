@@ -9,12 +9,12 @@ public abstract class CustomTask {
     private WrappedTask task;
 
     public WrappedTask runAtFixedRate(long delayTicks, long periodTicks) {
-        task = OraxenPlugin.getScheduler().runTimer(this::run, delayTicks, periodTicks);
+        task = OraxenPlugin.getFoliaScheduler().runTimer(this::run, delayTicks, periodTicks);
         return task;
     }
 
     public WrappedTask runAtFixedRate(Player player, int delay, int period) {
-        task = OraxenPlugin.getScheduler().runAtEntityTimer(player, this::run, delay, period);
+        task = OraxenPlugin.getFoliaScheduler().runAtEntityTimer(player, this::run, delay, period);
         return task;
     }
 
@@ -25,12 +25,12 @@ public abstract class CustomTask {
     public abstract void run();
 
     public WrappedTask runTimer(int delay, int period) {
-        task = OraxenPlugin.getScheduler().runTimer(this::run, delay, period);
+        task = OraxenPlugin.getFoliaScheduler().runTimer(this::run, delay, period);
         return task;
     }
 
     public WrappedTask runAtFixedRateAsync(long delay, long period) {
-        task = OraxenPlugin.getScheduler().runTimerAsync(this::run, delay, period);
+        task = OraxenPlugin.getFoliaScheduler().runTimerAsync(this::run, delay, period);
         return task;
     }
 

@@ -105,7 +105,7 @@ public class CommandsManager {
 
                     for (final Player target : targets) {
                         Map<Integer, ItemStack> output = target.getInventory().addItem(items);
-                        OraxenPlugin.getScheduler().runAtLocation(target.getLocation(), task -> {
+                        OraxenPlugin.getFoliaScheduler().runAtLocation(target.getLocation(), task -> {
                             for (ItemStack stack : output.values()) {
                                 target.getWorld().dropItem(target.getLocation(), stack);
                             }
