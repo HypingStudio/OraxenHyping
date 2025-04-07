@@ -51,6 +51,20 @@ public class ModelData {
         return new NamespacedKey(OraxenPlugin.get(), model);
     }
 
+    public static int getModelDataFromNamespace(NamespacedKey namespacedKey, Material type) {
+        if (namespacedKey == null || type == null) return -1;
+
+        String modelName = namespacedKey.getKey();
+        return getModelDataFromModelName(modelName, type);
+    }
+
+    public static int getModelDataFromModelName(String modelName, Material type) {
+        if (modelName == null || type == null) return -1;
+
+        Map<String, Integer> modelDatas = DATAS.getOrDefault(type, new HashMap<>());
+        return modelDatas.getOrDefault(modelName, -1);
+    }
+
     public static int generateId(String model, Material type) {
         Map<String, Integer> usedModelDatas = new HashMap<>();
         if (!DATAS.containsKey(type) && !getSkippedCustomModelData().contains(STARTING_CMD)) {
