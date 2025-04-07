@@ -169,5 +169,4 @@ public class NoteBlockMechanic extends Mechanic {
     public BlockLockerMechanic getBlockLocker() {
         return blockLocker;
     }
-
 }

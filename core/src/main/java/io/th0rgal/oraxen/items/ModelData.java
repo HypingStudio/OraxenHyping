@@ -1,7 +1,9 @@
 package io.th0rgal.oraxen.items;
 
+import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.config.Settings;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 
 import java.util.*;
 
@@ -11,13 +13,23 @@ public class ModelData {
     private final Material type;
     private final int modelData;
     public static final Map<Material, Map<String, Integer>> DATAS = new HashMap<>();
+    public static final Map<Material, Map<Integer, String>> REVERSED_DATAS = new HashMap<>();
 
     public ModelData(Material type, String model, int modelData) {
         this.type = type;
         this.modelData = modelData;
+
         Map<String, Integer> usedModelDatas = DATAS.getOrDefault(type, new HashMap<>());
         usedModelDatas.put(model, modelData);
         DATAS.put(type, usedModelDatas);
+
+        updateReversedMap(type, model, modelData);
+    }
+
+    private void updateReversedMap(Material type, String model, int modelData) {
+        Map<Integer, String> reversedMap = REVERSED_DATAS.getOrDefault(type, new HashMap<>());
+        reversedMap.put(modelData, model);
+        REVERSED_DATAS.put(type, reversedMap);
     }
 
     public Material getType() {
@@ -28,11 +40,27 @@ public class ModelData {
         return modelData;
     }
 
+    public static String getModelNameFromModelData(Material type, int modelData) {
+        return REVERSED_DATAS.getOrDefault(type, new HashMap<>()).get(modelData);
+    }
+
+    public static NamespacedKey getModelNamespaceFromModelData(Material type, int modelData) {
+        String model = getModelNameFromModelData(type, modelData);
+        if (model == null)
+            return null;
+        return new NamespacedKey(OraxenPlugin.get(), model);
+    }
+
     public static int generateId(String model, Material type) {
         Map<String, Integer> usedModelDatas = new HashMap<>();
         if (!DATAS.containsKey(type) && !getSkippedCustomModelData().contains(STARTING_CMD)) {
             usedModelDatas.put(model, STARTING_CMD);
             DATAS.put(type, usedModelDatas);
+
+            Map<Integer, String> reversedMap = new HashMap<>();
+            reversedMap.put(STARTING_CMD, model);
+            REVERSED_DATAS.put(type, reversedMap);
+
             return STARTING_CMD;
         } else
             usedModelDatas = DATAS.getOrDefault(type, new HashMap<>());
@@ -48,6 +76,11 @@ public class ModelData {
             }
             usedModelDatas.put(model, newModelData);
             DATAS.put(type, usedModelDatas);
+
+            Map<Integer, String> reversedMap = REVERSED_DATAS.getOrDefault(type, new HashMap<>());
+            reversedMap.put(newModelData, model);
+            REVERSED_DATAS.put(type, reversedMap);
+
             return newModelData;
         }
 
@@ -58,6 +91,11 @@ public class ModelData {
                     continue; // if the id should be skipped
                 usedModelDatas.put(model, i);
                 DATAS.put(type, usedModelDatas);
+
+                Map<Integer, String> reversedMap = REVERSED_DATAS.getOrDefault(type, new HashMap<>());
+                reversedMap.put(i, model);
+                REVERSED_DATAS.put(type, reversedMap);
+
                 return i;
             }
         }
@@ -70,6 +108,11 @@ public class ModelData {
 
         usedModelDatas.put(model, newHighestModelData);
         DATAS.put(type, usedModelDatas);
+
+        Map<Integer, String> reversedMap = REVERSED_DATAS.getOrDefault(type, new HashMap<>());
+        reversedMap.put(newHighestModelData, model);
+        REVERSED_DATAS.put(type, reversedMap);
+
         return newHighestModelData;
     }
 
