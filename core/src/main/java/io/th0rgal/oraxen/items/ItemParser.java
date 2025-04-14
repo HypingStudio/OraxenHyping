@@ -1,5 +1,7 @@
 package io.th0rgal.oraxen.items;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.compatibilities.provided.ecoitems.WrappedEcoItem;
@@ -23,12 +25,10 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.bukkit.inventory.meta.components.JukeboxPlayableComponent;
@@ -37,7 +37,6 @@ import org.bukkit.inventory.meta.components.UseCooldownComponent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.tag.DamageTypeTags;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -45,7 +44,8 @@ import java.util.function.Function;
 
 public class ItemParser {
 
-    public static final Map<String, ModelData> MODEL_DATAS_BY_ID = new HashMap<>();
+    public static final HashBiMap<String, ModelData> MODEL_DATAS_BY_ID = HashBiMap.create();
+    public static final BiMap<ModelData, String> ID_BY_MODEL_DATA = MODEL_DATAS_BY_ID.inverse();
 
     private final OraxenMeta oraxenMeta;
     private final ConfigurationSection section;

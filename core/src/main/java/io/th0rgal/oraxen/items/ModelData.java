@@ -7,23 +7,25 @@ import org.bukkit.NamespacedKey;
 
 import java.util.*;
 
-public class ModelData {
+public record ModelData(Material type, int modelData) {
 
     public static final int STARTING_CMD = 1000;
-    private final Material type;
-    private final int modelData;
     public static final Map<Material, Map<String, Integer>> DATAS = new HashMap<>();
     public static final Map<Material, Map<Integer, String>> REVERSED_DATAS = new HashMap<>();
 
     public ModelData(Material type, String model, int modelData) {
-        this.type = type;
-        this.modelData = modelData;
+        this(type, modelData);
 
         Map<String, Integer> usedModelDatas = DATAS.getOrDefault(type, new HashMap<>());
         usedModelDatas.put(model, modelData);
         DATAS.put(type, usedModelDatas);
 
         updateReversedMap(type, model, modelData);
+    }
+
+    public ModelData(Material type, int modelData) {
+        this.type = type;
+        this.modelData = modelData;
     }
 
     private void updateReversedMap(Material type, String model, int modelData) {
