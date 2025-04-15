@@ -42,15 +42,22 @@ public record ModelData(Material type, int modelData) {
         return modelData;
     }
 
+    public static String getModelIdentifierFromModelData(Material type, int modelData) {
+        return ItemParser.ID_BY_MODEL_DATA.get(new ModelData(type, modelData));
+    }
+
+    @Deprecated
+    /**
+     * @deprecated Use {@link #getModelIdentifierFromModelData(Material, int)} instead for applying models to items.
+     */
     public static String getModelNameFromModelData(Material type, int modelData) {
         return REVERSED_DATAS.getOrDefault(type, new HashMap<>()).get(modelData);
     }
 
     public static NamespacedKey getModelNamespaceFromModelData(Material type, int modelData) {
-        String model = getModelNameFromModelData(type, modelData);
-        if (model == null)
-            return null;
-        return new NamespacedKey(OraxenPlugin.get(), model);
+        String id = getModelIdentifierFromModelData(type, modelData);
+        if (id == null) return null;
+        return new NamespacedKey(OraxenPlugin.get(), id);
     }
 
     public static int getModelDataFromNamespace(NamespacedKey namespacedKey, Material type) {
@@ -151,5 +158,18 @@ public record ModelData(Material type, int modelData) {
                 skippedCustomModelData.add(Integer.parseInt(s));
         }
         return skippedCustomModelData;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ModelData modelData1 = (ModelData) o;
+        return getModelData() == modelData1.getModelData() && getType() == modelData1.getType();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getType(), getModelData());
     }
 }
