@@ -377,6 +377,7 @@ public class FurnitureMechanic extends Mechanic {
         if (entityClass == null) entityClass = ItemFrame.class;
 
         ItemStack item = OraxenItems.getOptionalItemById(placedItemId).map(b -> b.build().clone()).orElse(originalItem.clone());
+        item.setAmount(1);
         if (evolvingFurniture == null) {
             ItemUtils.editItemMeta(item, meta -> meta.setDisplayName(""));
         }
@@ -393,7 +394,6 @@ public class FurnitureMechanic extends Mechanic {
             spawnModelEngineFurniture(baseEntity);
         } else {
             baseEntity = EntityUtils.spawnEntity(correctedSpawnLocation(location, facing), entityClass, (e) -> setEntityData(e, yaw, item, facing));
-            item.setAmount(1);
         }
 
 
