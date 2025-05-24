@@ -109,6 +109,11 @@ public class StringBlockMechanicListener implements Listener {
             final Block blockAbove = block.getRelative(BlockFace.UP);
             final Player player = event.getPlayer();
 
+            // Skip interference for spawners and other important blocks to prevent conflicts with other plugins
+            if (block.getType() == Material.SPAWNER) {
+                return;
+            }
+
             for (BlockFace face : BlockFace.values()) {
                 if (face == BlockFace.SELF && !face.isCartesian())
                     continue;
@@ -117,6 +122,11 @@ public class StringBlockMechanicListener implements Listener {
                 if (block.getType() == Material.BARRIER && OraxenFurniture.isFurniture(block))
                     break;
                 if (block.getRelative(face).getType() == Material.TRIPWIRE) {
+                    // Only interfere if the adjacent tripwire is actually an Oraxen string block
+                    if (!OraxenBlocks.isOraxenStringBlock(block.getRelative(face))) {
+                        continue;
+                    }
+
                     if (player.getGameMode() != GameMode.CREATIVE)
                         block.breakNaturally(player.getInventory().getItemInMainHand(), true);
                     else
@@ -309,9 +319,17 @@ public class StringBlockMechanicListener implements Listener {
             return;
         }
 
-        // Handle breaking block below string
+        // Handle breaking block below string - but skip for spawners and other important blocks
         if (blockAbove.getType() == Material.TRIPWIRE && OraxenBlocks.isOraxenStringBlock(blockAbove)) {
-            OraxenBlocks.remove(blockAbove.getLocation(), player);
+            // Don't interfere with spawners and other important blocks
+            if (block.getType() != Material.SPAWNER) {
+                // Schedule the string block removal to happen after other plugins have processed the event
+                OraxenPlugin.getFoliaScheduler().runAtLocationLater(blockAbove.getLocation(), () -> {
+                    if (blockAbove.getType() == Material.TRIPWIRE && OraxenBlocks.isOraxenStringBlock(blockAbove)) {
+                        OraxenBlocks.remove(blockAbove.getLocation(), player);
+                    }
+                }, 1L);
+            }
         }
     }
 
