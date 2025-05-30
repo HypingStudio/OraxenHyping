@@ -50,6 +50,14 @@ amethyst_ore:
         loots:
           - oraxen_item: amethyst
             probability: 1.0
+    ore_smelting:
+      loots:
+        amethyst_ingot: 1
+        amethyst_nugget: 4
+      duration:
+        furnace: 200
+        blast_furnace: 100
+      experience: 0.7
 
 ruby_ore:
   displayname: '<gradient:#FA7CBB:#F14658>Ruby Ore'
@@ -129,3 +137,11 @@ orax_ore:
         loots:
           - oraxen_item: orax
             probability: 1.0
+    ore_smelting:
+      loots:
+        orax_ingot: 2
+        orax_nugget: 6
+      duration:
+        furnace: 300
+        blast_furnace: 150
+      experience: 1.2

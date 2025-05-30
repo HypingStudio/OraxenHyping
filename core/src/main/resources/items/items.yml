@@ -156,6 +156,80 @@ orax:
     textures:
       - default/orax.png # .png extension is not mandatory
 
+# Ingots for smelting
+amethyst_ingot:
+  displayname: "<gradient:#4B36B1:#6699FF>Amethyst Ingot"
+  material: PAPER
+  Pack:
+    generate_model: true
+    parent_model: "item/generated"
+    textures:
+      - default/amethyst_ingot.png
+
+ruby_ingot:
+  displayname: "<gradient:#FA7CBB:#F14658>Ruby Ingot"
+  material: PAPER
+  Pack:
+    generate_model: true
+    parent_model: "item/generated"
+    textures:
+      - default/ruby_ingot.png
+
+onyx_ingot:
+  displayname: "<#6f737d>Onyx Ingot"
+  material: PAPER
+  Pack:
+    generate_model: true
+    parent_model: "item/generated"
+    textures:
+      - default/onyx_ingot.png
+
+orax_ingot:
+  displayname: "<gradient:#3685EC:#72C1E4>Orax Ingot"
+  material: PAPER
+  Pack:
+    generate_model: true
+    parent_model: "item/generated"
+    textures:
+      - default/orax_ingot.png
+
+# Nuggets for smelting
+amethyst_nugget:
+  displayname: "<gradient:#4B36B1:#6699FF>Amethyst Nugget"
+  material: PAPER
+  Pack:
+    generate_model: true
+    parent_model: "item/generated"
+    textures:
+      - default/amethyst_nugget.png
+
+ruby_nugget:
+  displayname: "<gradient:#FA7CBB:#F14658>Ruby Nugget"
+  material: PAPER
+  Pack:
+    generate_model: true
+    parent_model: "item/generated"
+    textures:
+      - default/ruby_nugget.png
+
+onyx_nugget:
+  displayname: "<#6f737d>Onyx Nugget"
+  material: PAPER
+  Pack:
+    generate_model: true
+    parent_model: "item/generated"
+    textures:
+      - default/onyx_nugget.png
+
+orax_nugget:
+  displayname: "<gradient:#3685EC:#72C1E4>Orax Nugget"
+  material: PAPER
+  Pack:
+    generate_model: true
+    parent_model: "item/generated"
+    textures:
+      - default/orax_nugget.png
+
 fire:
   displayname: "<gradient:#F06966:#FAD6A6>Fire"
   material: PAPER

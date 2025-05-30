@@ -19,6 +19,7 @@ import io.th0rgal.oraxen.mechanics.provided.farming.bigmining.BigMiningMechanicF
 import io.th0rgal.oraxen.mechanics.provided.farming.bottledexp.BottledExpMechanicFactory;
 import io.th0rgal.oraxen.mechanics.provided.farming.harvesting.HarvestingMechanicFactory;
 import io.th0rgal.oraxen.mechanics.provided.farming.smelting.SmeltingMechanicFactory;
+import io.th0rgal.oraxen.mechanics.provided.farming.oresmelting.OreSmeltingMechanicFactory;
 import io.th0rgal.oraxen.mechanics.provided.farming.watering.WateringMechanicFactory;
 import io.th0rgal.oraxen.mechanics.provided.gameplay.block.BlockMechanicFactory;
 import io.th0rgal.oraxen.mechanics.provided.gameplay.durability.DurabilityMechanicFactory;
@@ -97,6 +98,7 @@ public class MechanicsManager {
         // farming
         registerFactory("bigmining", BigMiningMechanicFactory::new);
         registerFactory("smelting", SmeltingMechanicFactory::new);
+        registerFactory("ore_smelting", OreSmeltingMechanicFactory::new);
         registerFactory("bottledexp", BottledExpMechanicFactory::new);
         registerFactory("harvesting", HarvestingMechanicFactory::new);
         registerFactory("watering", WateringMechanicFactory::new);

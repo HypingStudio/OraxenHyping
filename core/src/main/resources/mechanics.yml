@@ -153,6 +153,9 @@ smelting:
   blacklist_cooked:
     - WET_SPONGE
 
+ore_smelting:
+  enabled: true
+
 bottledexp:
   enabled: true
   durability_cost: 10
