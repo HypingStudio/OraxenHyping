@@ -398,6 +398,72 @@ public class NMSHandler implements io.th0rgal.oraxen.nms.NMSHandler {
         foodComponent.setCanAlwaysEat(foodSection.getBoolean("can_always_eat"));
 
         item.setFoodComponent(foodComponent);
+
+        // In 1.21.2+, items need a consumable component to be edible
+        // Automatically create a basic consumable component if the item doesn't already have one
+        if (!item.hasConsumableComponent()) {
+            Consumable.Builder consumable = Consumable.builder();
+
+            // Set default eating animation and sound
+            consumable.animation(ItemUseAnimation.EAT);
+            consumable.consumeSeconds((float) foodSection.getDouble("eat_seconds", 1.6));
+            consumable.hasConsumeParticles(foodSection.getBoolean("has_consume_particles", true));
+
+            // Use default eating sound if not specified
+            String soundId = foodSection.getString("sound");
+            if (soundId != null) {
+                try {
+                    ResourceLocation soundLocation = ResourceLocation.parse(soundId);
+                    BuiltInRegistries.SOUND_EVENT.getOptional(soundLocation)
+                            .map(BuiltInRegistries.SOUND_EVENT::wrapAsHolder)
+                            .ifPresentOrElse(consumable::sound, () -> {
+                                // Fall back to default eating sound if not found
+                                ResourceLocation eatSound = ResourceLocation.parse("entity.generic.eat");
+                                BuiltInRegistries.SOUND_EVENT.getOptional(eatSound)
+                                        .map(BuiltInRegistries.SOUND_EVENT::wrapAsHolder)
+                                        .ifPresent(consumable::sound);
+                            });
+                } catch (Exception e) {
+                    // Fall back to default eating sound if parsing fails
+                    ResourceLocation eatSound = ResourceLocation.parse("entity.generic.eat");
+                    BuiltInRegistries.SOUND_EVENT.getOptional(eatSound)
+                            .map(BuiltInRegistries.SOUND_EVENT::wrapAsHolder)
+                            .ifPresent(consumable::sound);
+                }
+            } else {
+                // Use default eating sound
+                ResourceLocation eatSound = ResourceLocation.parse("entity.generic.eat");
+                BuiltInRegistries.SOUND_EVENT.getOptional(eatSound)
+                        .map(BuiltInRegistries.SOUND_EVENT::wrapAsHolder)
+                        .ifPresent(consumable::sound);
+            }
+
+            // Handle replacement item if specified
+            ConfigurationSection replacementSection = foodSection.getConfigurationSection("replacement");
+            if (replacementSection != null) {
+                ItemStack replacementItem = parseReplacementItem(replacementSection);
+                if (replacementItem != null) {
+                    ResourceLocation burpSound = ResourceLocation.parse("entity.player.burp");
+                    BuiltInRegistries.SOUND_EVENT.getOptional(burpSound)
+                            .map(BuiltInRegistries.SOUND_EVENT::wrapAsHolder)
+                            .map(PlaySoundConsumeEffect::new)
+                            .ifPresent(consumable::onConsume);
+                }
+            }
+
+            // Handle effects if specified
+            ConfigurationSection effectsSection = foodSection.getConfigurationSection("effects");
+            if (effectsSection != null) {
+                for (String effectKey : effectsSection.getKeys(false)) {
+                    ConfigurationSection effectSection = effectsSection.getConfigurationSection(effectKey);
+                    if (effectSection != null) {
+                        addFoodEffect(consumable, effectKey, effectSection);
+                    }
+                }
+            }
+
+            item.setConsumableComponent(consumable.build());
+        }
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -513,5 +579,57 @@ public class NMSHandler implements io.th0rgal.oraxen.nms.NMSHandler {
             e.printStackTrace();
         }
         return itemStack;
+    }
+
+    /**
+     * Helper method to parse replacement items from configuration
+     */
+    private ItemStack parseReplacementItem(ConfigurationSection replacementSection) {
+        try {
+            if (replacementSection.isString("minecraft_type")) {
+                org.bukkit.Material material = org.bukkit.Material.getMaterial(replacementSection.getString("minecraft_type"));
+                if (material != null) {
+                    return new ItemStack(material);
+                }
+            } else if (replacementSection.isString("oraxen_item")) {
+                // This would require OraxenItems which might cause circular dependency
+                // For now, just return null and let the calling code handle it
+                return null;
+            }
+        } catch (Exception e) {
+            Logs.logWarning("Failed to parse replacement item: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Helper method to add food effects to consumable component
+     */
+    private void addFoodEffect(Consumable.Builder consumable, String effectKey, ConfigurationSection effectSection) {
+        try {
+            ResourceLocation effectId = ResourceLocation.parse(effectKey.toLowerCase());
+            BuiltInRegistries.MOB_EFFECT.getOptional(effectId)
+                    .map(BuiltInRegistries.MOB_EFFECT::wrapAsHolder)
+                    .ifPresent(effect -> {
+                        int duration = effectSection.getInt("duration", 20) * 20; // Convert to ticks
+                        int amplifier = effectSection.getInt("amplifier", 0);
+                        boolean ambient = effectSection.getBoolean("ambient", false);
+                        boolean showParticles = effectSection.getBoolean("show_particles", true);
+                        boolean showIcon = effectSection.getBoolean("show_icon", true);
+                        float probability = (float) effectSection.getDouble("probability", 100.0) / 100.0f;
+
+                        MobEffectInstance effectInstance = new MobEffectInstance(
+                                effect, duration, amplifier, ambient, showParticles, showIcon
+                        );
+
+                        if (probability >= 1.0f) {
+                            consumable.onConsume(new ApplyStatusEffectsConsumeEffect(java.util.List.of(effectInstance)));
+                        } else {
+                            consumable.onConsume(new ApplyStatusEffectsConsumeEffect(java.util.List.of(effectInstance), probability));
+                        }
+                    });
+        } catch (Exception e) {
+            Logs.logWarning("Failed to parse food effect " + effectKey + ": " + e.getMessage());
+        }
     }
 }
