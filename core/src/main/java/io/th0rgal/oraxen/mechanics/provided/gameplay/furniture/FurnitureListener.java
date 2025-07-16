@@ -282,6 +282,17 @@ public class FurnitureListener implements Listener {
         if (mechanic == null)
             return;
 
+        // Auto-fix for ModelEngine furniture - set placedItem if missing (for third-party plugin compatibility)
+        if (mechanic.isModelEngine()) {
+            String itemID = mechanic.getItemID();
+            String placedItemId = mechanic.getSection().getString("placedItem");
+            if (placedItemId == null || placedItemId.isEmpty() || !OraxenItems.exists(placedItemId)) {
+
+                mechanic.getSection().set("placedItem", itemID);
+                System.out.println("[Oraxen] Auto-fixed ModelEngine furniture '" + itemID + "' by setting placedItem to '" + itemID + "' for third-party plugin compatibility.");
+            }
+        }
+
         event.setCancelled(true);
         entity = mechanic.getBaseEntity(entity);
         if (entity == null)
@@ -310,6 +321,17 @@ public class FurnitureListener implements Listener {
         Entity baseEntity = mechanic.getBaseEntity(block);
         if (baseEntity == null)
             return;
+
+        // Auto-fix for ModelEngine furniture - set placedItem if missing (for third-party plugin compatibility)
+        if (mechanic.isModelEngine()) {
+            String itemID = mechanic.getItemID();
+            String placedItemId = mechanic.getSection().getString("placedItem");
+            if (placedItemId == null || placedItemId.isEmpty() || !OraxenItems.exists(placedItemId)) {
+
+                mechanic.getSection().set("placedItem", itemID);
+                System.out.println("[Oraxen] Auto-fixed ModelEngine furniture '" + itemID + "' by setting placedItem to '" + itemID + "' for third-party plugin compatibility.");
+            }
+        }
 
         event.setCancelled(true);
         OraxenFurnitureBreakEvent furnitureBreakEvent = new OraxenFurnitureBreakEvent(mechanic, baseEntity, player,

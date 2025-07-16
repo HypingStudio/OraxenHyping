@@ -161,20 +161,27 @@ public class Drop {
                 itemMeta.setDisplayName(baseMeta.getDisplayName());
         });
 
-        if (!canDrop(itemInHand) || !location.isWorldLoaded()) return;
+        boolean canDropResult = canDrop(itemInHand);
+        boolean locationLoaded = location.isWorldLoaded();
+
+        boolean shouldDrop = locationLoaded && (canDropResult || (minimalType == null || minimalType.isEmpty()) && bestTools.isEmpty());
+
+        if (!shouldDrop) return;
         assert location.getWorld() != null;
 
         if (silktouch && itemInHand.hasItemMeta() && itemInHand.getItemMeta().hasEnchant(EnchantmentWrapper.SILK_TOUCH)) {
             location.getWorld().dropItemNaturally(BlockHelpers.toCenterBlockLocation(location), baseItem);
         } else {
             // Drop all the items that aren't the furniture item
-            dropLoot(loots.stream().filter(loot ->
-                    !loot.getItemStack().isSimilar(baseItem) && !OraxenItems.getIdByItem(loot.getItemStack()).equals(sourceID)).toList(), location, getFortuneMultiplier(itemInHand));
-            // Filter loots down to only the furniture item and drop the item in the actual Furniture to preseve color etc.
-            dropLoot(loots.stream()
+            var nonFurnitureLoots = loots.stream().filter(loot ->
+                    !loot.getItemStack().isSimilar(baseItem) && !OraxenItems.getIdByItem(loot.getItemStack()).equals(sourceID)).toList();
+            dropLoot(nonFurnitureLoots, location, getFortuneMultiplier(itemInHand));
+
+            var furnitureLoots = loots.stream()
                     .filter(loot -> loot.getItemStack().isSimilar(baseItem) || OraxenItems.getIdByItem(loot.getItemStack()).equals(sourceID))
-                    .map(loot -> new Loot(sourceID, furnitureItem, loot.getProbability(), 1, loot.getMaxAmount()))
-                    .toList(), location, getFortuneMultiplier(itemInHand));
+                    .map(loot -> new Loot(sourceID, baseItem, loot.getProbability(), loot.amount()))
+                    .toList();
+            dropLoot(furnitureLoots, location, getFortuneMultiplier(itemInHand));
         }
     }
 
