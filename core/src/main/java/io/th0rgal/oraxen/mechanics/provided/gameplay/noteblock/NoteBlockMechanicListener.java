@@ -1,6 +1,7 @@
 package io.th0rgal.oraxen.mechanics.provided.gameplay.noteblock;
 
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
+import io.papermc.paper.event.player.PlayerPickItemEvent;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.OraxenItems;
@@ -357,6 +358,10 @@ public class NoteBlockMechanicListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onMiddleClick(final InventoryCreativeEvent event) {
+        // !!
+        if (true) return; // Never use this - use custom implementation below
+        // !!
+
         if (event.getClick() != ClickType.CREATIVE) return;
         final Player player = (Player) event.getInventory().getHolder();
         if (player == null) return;
@@ -383,6 +388,30 @@ public class NoteBlockMechanicListener implements Listener {
             }
             event.setCursor(item);
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onOraxenMiddleClick(PlayerPickItemEvent event) {
+        Player player = event.getPlayer();
+        if (player.getGameMode() != GameMode.CREATIVE) return;
+
+        final RayTraceResult rayTraceResult = player.rayTraceBlocks(6.0);
+        if (rayTraceResult == null) return;
+
+        final Block block = rayTraceResult.getHitBlock();
+        if (block == null) return;
+
+        NoteBlockMechanic mechanic = OraxenBlocks.getNoteBlockMechanic(block);
+        if (mechanic == null) return;
+
+        ItemStack item;
+        if (mechanic.isDirectional() && !mechanic.getDirectional().isParentBlock())
+            item = OraxenItems.getItemById(mechanic.getDirectional().getParentBlock()).build();
+        else item = OraxenItems.getItemById(mechanic.getItemID()).build();
+
+        int targetSlot = event.getTargetSlot();
+        player.getInventory().setItem(targetSlot, item);
+        event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true)
