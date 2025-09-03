@@ -147,6 +147,8 @@ public class ItemParser {
             item.setUnbreakable(section.getBoolean("unbreakable", false));
         if (section.contains("unstackable"))
             item.setUnstackable(section.getBoolean("unstackable", false));
+        if (section.contains("unplaceable"))
+            item.setUnplaceable(section.getBoolean("unplaceable", false));
         if (section.contains("color"))
             item.setColor(Utils.toColor(section.getString("color", "#FFFFFF")));
         if (section.contains("trim_pattern"))
