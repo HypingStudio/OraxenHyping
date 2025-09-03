@@ -140,18 +140,20 @@ public class ItemParser {
                     item.setDisplayName(section.getString("customname", ""));
             }
 
-            // if (section.contains("type"))
-            // item.setType(Material.getMaterial(section.getString("type", "PAPER")));
-            if (section.contains("lore"))
-                item.setLore(section.getStringList("lore").stream().map(AdventureUtils::parseMiniMessage).toList());
-            if (section.contains("unbreakable"))
-                item.setUnbreakable(section.getBoolean("unbreakable", false));
-            if (section.contains("unstackable"))
-                item.setUnstackable(section.getBoolean("unstackable", false));
-            if (section.contains("color"))
-                item.setColor(Utils.toColor(section.getString("color", "#FFFFFF")));
-            if (section.contains("trim_pattern"))
-                item.setTrimPattern(Key.key(section.getString("trim_pattern", "")));
+        // if (section.contains("type"))
+        // item.setType(Material.getMaterial(section.getString("type", "PAPER")));
+        if (section.contains("lore"))
+            item.setLore(section.getStringList("lore").stream().map(AdventureUtils::parseMiniMessage).toList());
+        if (section.contains("unbreakable"))
+            item.setUnbreakable(section.getBoolean("unbreakable", false));
+        if (section.contains("unstackable"))
+            item.setUnstackable(section.getBoolean("unstackable", false));
+        if (section.contains("unplaceable"))
+            item.setUnplaceable(section.getBoolean("unplaceable", false));
+        if (section.contains("color"))
+            item.setColor(Utils.toColor(section.getString("color", "#FFFFFF")));
+        if (section.contains("trim_pattern"))
+            item.setTrimPattern(Key.key(section.getString("trim_pattern", "")));
 
             parseDataComponents(item);
             parseMiscOptions(item);

@@ -50,6 +50,7 @@ public class ItemBuilder {
 
     public static final NamespacedKey UNSTACKABLE_KEY = new NamespacedKey(OraxenPlugin.get(), "unstackable");
     public static final NamespacedKey ORIGINAL_NAME_KEY = new NamespacedKey(OraxenPlugin.get(), "original_name");
+    public static final NamespacedKey UNPLACEABLE_KEY = new NamespacedKey(OraxenPlugin.get(), "unplaceable");
 
     private final ItemStack itemStack;
     private final Map<PersistentDataSpace, Object> persistentDataMap = new HashMap<>();
@@ -71,6 +72,7 @@ public class ItemBuilder {
     private Message displayNameMessage;
     private boolean unbreakable;
     private boolean unstackable;
+    private boolean unplaceable;
     private Set<ItemFlag> itemFlags;
     private boolean hasAttributeModifiers;
     private Multimap<Attribute, AttributeModifier> attributeModifiers;
@@ -204,6 +206,7 @@ public class ItemBuilder {
 
         unbreakable = itemMeta.isUnbreakable();
         unstackable = itemMeta.getPersistentDataContainer().has(UNSTACKABLE_KEY, DataType.UUID);
+        unplaceable = itemMeta.getPersistentDataContainer().has(UNPLACEABLE_KEY, DataType.UUID);
 
         if (!itemMeta.getItemFlags().isEmpty())
             itemFlags = itemMeta.getItemFlags();
@@ -353,10 +356,19 @@ public class ItemBuilder {
         return unstackable;
     }
 
+    public boolean isUnplayable() {
+        return unplaceable;
+    }
+
     public ItemBuilder setUnstackable(final boolean unstackable) {
         this.unstackable = unstackable;
         if (unstackable && VersionUtil.atOrAbove("1.20.5"))
             maxStackSize = 1;
+        return this;
+    }
+
+    public ItemBuilder setUnplaceable(final boolean unplaceable) {
+        this.unplaceable = unplaceable;
         return this;
     }
 
@@ -1142,6 +1154,8 @@ public class ItemBuilder {
             clone.setAmount(max);
             if (unstackable)
                 clone = handleUnstackable(clone);
+            if (unplaceable)
+                clone = handleUnplaceable(clone);
             output[index] = ItemUpdater.updateItem(clone);
         }
         if (rest != 0) {
@@ -1149,6 +1163,8 @@ public class ItemBuilder {
             clone.setAmount(rest);
             if (unstackable)
                 clone = handleUnstackable(clone);
+            if (unplaceable)
+                clone = handleUnplaceable(clone);
             output[iterations] = ItemUpdater.updateItem(clone);
         }
         return output;
@@ -1159,6 +1175,8 @@ public class ItemBuilder {
             regen();
         if (unstackable)
             return handleUnstackable(finalItemStack);
+        if (unplaceable)
+            return handleUnplaceable(finalItemStack);
         else
             return finalItemStack.clone();
     }
@@ -1170,6 +1188,17 @@ public class ItemBuilder {
         meta.getPersistentDataContainer().set(UNSTACKABLE_KEY, DataType.UUID, UUID.randomUUID());
         item.setItemMeta(meta);
         item.setAmount(1);
+        return item;
+    }
+
+    private ItemStack handleUnplaceable(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+
+        if (meta == null) return item;
+
+        meta.getPersistentDataContainer().set(UNPLACEABLE_KEY, DataType.UUID, UUID.randomUUID());
+        item.setItemMeta(meta);
+
         return item;
     }
 
