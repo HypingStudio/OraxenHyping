@@ -314,7 +314,7 @@ public class ItemBuilder {
         return unstackable;
     }
 
-    public boolean isUnplayable() {
+    public boolean isUnplaceable() {
         return unplaceable;
     }
 
