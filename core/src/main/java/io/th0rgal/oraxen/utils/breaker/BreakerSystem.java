@@ -28,6 +28,10 @@ import io.th0rgal.oraxen.utils.drops.Drop;
 import io.th0rgal.oraxen.utils.wrappers.EnchantmentWrapper;
 import io.th0rgal.protectionlib.ProtectionLib;
 import org.bukkit.*;
+
+import java.lang.reflect.Method;
+import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
@@ -162,7 +166,17 @@ public class BreakerSystem {
                         }
 
                         if (value.getAndIncrement() < 10) return;
-                        if (EventUtils.callEvent(new BlockBreakEvent(block, player)) && ProtectionLib.canBreak(player, location)) {
+                        Location permLoc = location;
+                        Entity base = null;
+                        if (furnitureMechanic != null) {
+                            base = furnitureMechanic.getBaseEntity(block);
+                            if (base != null) permLoc = base.getLocation();
+                        }
+                        boolean allowed = ProtectionLib.canBreak(player, permLoc);
+                        if (!allowed && isHypingFieldsTagged(base)) {
+                            allowed = true;
+                        }
+                        if (EventUtils.callEvent(new BlockBreakEvent(block, player)) && allowed) {
                             // Damage item with properties identified earlier
                             ItemUtils.damageItem(player, drop, item);
                             modifier.breakBlock(player, block, item);
@@ -186,7 +200,18 @@ public class BreakerSystem {
             } else {
                 OraxenPlugin.getScheduler().runTask(fr.euphyllia.energie.model.SchedulerType.SYNC, player, playerTask -> {
                     player.removePotionEffect(PotionUtils.getEffectType("mining_fatigue"));
-                    if (!ProtectionLib.canBreak(player, location))
+                    Location permLoc2 = location;
+                    FurnitureMechanic furnMech2 = OraxenFurniture.getFurnitureMechanic(block);
+                    Entity base2 = null;
+                    if (furnMech2 != null) {
+                        base2 = furnMech2.getBaseEntity(block);
+                        if (base2 != null) permLoc2 = base2.getLocation();
+                    }
+                    boolean allowed2 = ProtectionLib.canBreak(player, permLoc2);
+                    if (!allowed2 && isHypingFieldsTagged(base2)) {
+                        allowed2 = true;
+                    }
+                    if (!allowed2)
                         player.sendBlockChange(location, block.getBlockData());
 
                     for (final Entity entity : world.getNearbyEntities(location, 16, 16, 16))
@@ -296,6 +321,43 @@ public class BreakerSystem {
         fr.euphyllia.energie.model.SchedulerTaskInter value = breakerPlaySound.get(location);
         if (value != null) value.cancel();
         breakerPlaySound.remove(location);
+    }
+
+    // Lightweight reflection-based check to detect HypingFields Oraxen crops without a hard dependency
+    private boolean isHypingFieldsTagged(Entity entity) {
+        if (entity == null) return false;
+        try {
+            NamespacedKey key = new NamespacedKey("hypingfields", "hfields_crop");
+            return entity.getPersistentDataContainer().has(key, PersistentDataType.BYTE);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    private boolean isHypingFieldsOraxenCropAt(Location location) {
+        if (location == null) return false;
+        try {
+            Class<?> fmClass = Class.forName("fr.kotlini.hypingfields.manager.FieldsManager");
+            Method getInstance = fmClass.getMethod("getInstance");
+            Object fm = getInstance.invoke(null);
+            Method getFieldByLocation = fmClass.getMethod("getFieldByLocation", org.bukkit.Location.class);
+            Object field = getFieldByLocation.invoke(fm, location);
+            if (field == null) return false;
+            Class<?> locUtils = Class.forName("fr.kotlini.hypingfields.util.LocationUtils");
+            Method locationToLong = locUtils.getMethod("locationToLong", org.bukkit.Location.class);
+            long key = ((Number) locationToLong.invoke(null, location)).longValue();
+            Method locationsMap = field.getClass().getMethod("locationsMap");
+            java.util.Map<?, ?> map = (java.util.Map<?, ?>) locationsMap.invoke(field);
+            Object plant = map.get(key);
+            if (plant == null) return false;
+            Method getCropType = plant.getClass().getMethod("getCropType");
+            Object cropType = getCropType.invoke(plant);
+            Class<?> cropTypeClass = Class.forName("fr.kotlini.hypingfields.model.CropType");
+            Object oraxen = cropTypeClass.getField("ORAXEN_FURNITURE_CROP").get(null);
+            return cropType == oraxen || (cropType != null && cropType.equals(oraxen));
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     public void registerListener() {
