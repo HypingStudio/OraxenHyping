@@ -554,7 +554,9 @@ public class StringBlockMechanicListener implements Listener {
             BlockHelpers.correctAllBlockStates(placedAgainst, player, hand, face, item, newData);
         }
         if (VersionUtil.isPaperServer())
-            target.getWorld().sendGameEvent(player, GameEvent.BLOCK_PLACE, target.getLocation().toVector());
+            Bukkit.getRegionScheduler().run(OraxenPlugin.get(), target.getLocation(), (task) -> {
+                target.getWorld().sendGameEvent(player, GameEvent.BLOCK_PLACE, target.getLocation().toVector());
+            });
     }
 
     public static void fixClientsideUpdate(Location loc) {
