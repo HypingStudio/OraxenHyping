@@ -21,11 +21,11 @@ import io.th0rgal.oraxen.utils.blocksounds.BlockSounds;
 import io.th0rgal.oraxen.utils.drops.Drop;
 import io.th0rgal.oraxen.utils.wrappers.EnchantmentWrapper;
 import io.th0rgal.protectionlib.ProtectionLib;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
+
+import java.lang.reflect.Method;
+import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
@@ -37,13 +37,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.th0rgal.oraxen.mechanics.provided.gameplay.block.BlockMechanicFactory.getBlockMechanic;
 
@@ -206,13 +203,13 @@ public abstract class BreakerSystem {
         // Get base entity directly - we're already on the correct thread context
         // (main thread for Bukkit, region thread for Folia) from block damage events.
         if (furnitureMechanic == null) return Collections.singletonList(block.getLocation());
-        
+
         Entity furnitureBaseEntity = furnitureMechanic.getBaseEntity(block);
         if (furnitureBaseEntity == null) return Collections.singletonList(block.getLocation());
-        
+
         return furnitureMechanic.getLocations(
                 FurnitureMechanic.getFurnitureYaw(furnitureBaseEntity),
-                furnitureBaseEntity.getLocation(), 
+                furnitureBaseEntity.getLocation(),
                 furnitureMechanic.getBarriers());
     }
 
@@ -280,7 +277,50 @@ public abstract class BreakerSystem {
     }
 
     private void stopBlockHitSound(Location location) {
-        Optional.ofNullable(breakerPlaySound.remove(location)).ifPresent(SchedulerUtil.ScheduledTask::cancel);
+        fr.euphyllia.energie.model.SchedulerTaskInter value = breakerPlaySound.get(location);
+        if (value != null) value.cancel();
+        breakerPlaySound.remove(location);
+    }
+
+    // Lightweight reflection-based check to detect HypingFields Oraxen crops without a hard dependency
+    private boolean isHypingFieldsTagged(Entity entity) {
+        if (entity == null) return false;
+        try {
+            NamespacedKey key = new NamespacedKey("hypingfields", "hfields_crop");
+            return entity.getPersistentDataContainer().has(key, PersistentDataType.BYTE);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    private boolean isHypingFieldsOraxenCropAt(Location location) {
+        if (location == null) return false;
+        try {
+            Class<?> fmClass = Class.forName("fr.kotlini.hypingfields.manager.FieldsManager");
+            Method getInstance = fmClass.getMethod("getInstance");
+            Object fm = getInstance.invoke(null);
+            Method getFieldByLocation = fmClass.getMethod("getFieldByLocation", org.bukkit.Location.class);
+            Object field = getFieldByLocation.invoke(fm, location);
+            if (field == null) return false;
+            Class<?> locUtils = Class.forName("fr.kotlini.hypingfields.util.LocationUtils");
+            Method locationToLong = locUtils.getMethod("locationToLong", org.bukkit.Location.class);
+            long key = ((Number) locationToLong.invoke(null, location)).longValue();
+            Method locationsMap = field.getClass().getMethod("locationsMap");
+            java.util.Map<?, ?> map = (java.util.Map<?, ?>) locationsMap.invoke(field);
+            Object plant = map.get(key);
+            if (plant == null) return false;
+            Method getCropType = plant.getClass().getMethod("getCropType");
+            Object cropType = getCropType.invoke(plant);
+            Class<?> cropTypeClass = Class.forName("fr.kotlini.hypingfields.model.CropType");
+            Object oraxen = cropTypeClass.getField("ORAXEN_FURNITURE_CROP").get(null);
+            return cropType == oraxen || (cropType != null && cropType.equals(oraxen));
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    public void registerListener() {
+        ProtocolLibrary.getProtocolManager().addPacketListener(listener);
     }
 
     private BlockSounds getBlockSounds(Block block) {

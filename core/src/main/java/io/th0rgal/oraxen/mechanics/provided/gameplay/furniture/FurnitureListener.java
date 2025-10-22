@@ -285,7 +285,17 @@ public class FurnitureListener implements Listener {
         entity = mechanic.getBaseEntity(entity);
         if (entity == null)
             return;
-        if (!ProtectionLib.canBreak(player, entity.getLocation()))
+        boolean allowedBreak = ProtectionLib.canBreak(player, entity.getLocation());
+        if (!allowedBreak) {
+            Location check = entity.getLocation().getBlock().getLocation();
+            try {
+                Class<?> fmClass = Class.forName("fr.kotlini.hypingfields.manager.FieldsManager");
+                Object fm = fmClass.getMethod("getInstance").invoke(null);
+                Object field = fmClass.getMethod("getFieldByLocation", org.bukkit.Location.class).invoke(fm, check);
+                if (field != null) allowedBreak = true;
+            } catch (Throwable ignored) {}
+        }
+        if (!allowedBreak)
             return;
         OraxenFurnitureBreakEvent furnitureBreakEvent = new OraxenFurnitureBreakEvent(mechanic, entity, player,
                 entity.getLocation().getBlock());
