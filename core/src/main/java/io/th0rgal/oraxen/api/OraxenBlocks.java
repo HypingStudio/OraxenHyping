@@ -331,7 +331,10 @@ public class OraxenBlocks {
 
             World world = block.getWorld();
 
-            if (VersionUtil.isPaperServer()) world.sendGameEvent(player, GameEvent.BLOCK_DESTROY, loc.toVector());
+            if (VersionUtil.isPaperServer())
+                Bukkit.getRegionScheduler().run(OraxenPlugin.get(), loc, (task) -> {
+                    world.sendGameEvent(player, GameEvent.BLOCK_DESTROY, loc.toVector());
+                });
             if (VersionUtil.atOrAbove("1.20")) world.playEffect(loc, Effect.STEP_SOUND, block.getBlockData());
         }
         if (drop != null) drop.spawns(loc, itemInHand);
@@ -363,7 +366,10 @@ public class OraxenBlocks {
             else if (hasDropOverride || player.getGameMode() != GameMode.CREATIVE)
                 drop = wireBlockBreakEvent.getDrop();
 
-            if (VersionUtil.isPaperServer()) block.getWorld().sendGameEvent(player, GameEvent.BLOCK_DESTROY, block.getLocation().toVector());
+            if (VersionUtil.isPaperServer())
+                Bukkit.getRegionScheduler().run(OraxenPlugin.get(), block.getLocation(), wp -> {
+                    block.getWorld().sendGameEvent(player, GameEvent.BLOCK_DESTROY, block.getLocation().toVector());
+                });
         }
         if (drop != null) drop.spawns(block.getLocation(), itemInHand);
 
@@ -518,7 +524,7 @@ public class OraxenBlocks {
 
     private static void createInitialLight(Block block, String itemID) {
         ToggleLightMechanic toggleLight = getToggleLightMechanic(itemID);
-        
+
         if (toggleLight != null) {
             int baseLightLevel = toggleLight.getBaseLightLevel();
             if (toggleLight.hasToggleLight() || baseLightLevel > 0) {
@@ -526,14 +532,14 @@ public class OraxenBlocks {
                 return;
             }
         }
-        
+
         // Fallback to regular light mechanics
         NoteBlockMechanic noteBlockMechanic = getNoteBlockMechanic(itemID);
         if (noteBlockMechanic != null && noteBlockMechanic.hasLight()) {
             noteBlockMechanic.getLight().createBlockLight(block);
             return;
         }
-        
+
         StringBlockMechanic stringBlockMechanic = getStringMechanic(itemID);
         if (stringBlockMechanic != null && stringBlockMechanic.hasLight()) {
             stringBlockMechanic.getLight().createBlockLight(block);
@@ -548,19 +554,19 @@ public class OraxenBlocks {
 
     private static void removeLight(Block block, String itemID) {
         ToggleLightMechanic toggleLight = getToggleLightMechanic(itemID);
-        
+
         if (toggleLight != null && (toggleLight.hasToggleLight() || toggleLight.getBaseLightLevel() > 0)) {
             toggleLight.updateLight(block, 0);
             return;
         }
-        
+
         // Fallback to regular light mechanics
         NoteBlockMechanic noteBlockMechanic = getNoteBlockMechanic(itemID);
         if (noteBlockMechanic != null && noteBlockMechanic.hasLight()) {
             noteBlockMechanic.getLight().removeBlockLight(block);
             return;
         }
-        
+
         StringBlockMechanic stringBlockMechanic = getStringMechanic(itemID);
         if (stringBlockMechanic != null && stringBlockMechanic.hasLight()) {
             stringBlockMechanic.getLight().removeBlockLight(block);

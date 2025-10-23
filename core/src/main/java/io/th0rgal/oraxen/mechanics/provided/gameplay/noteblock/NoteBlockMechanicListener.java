@@ -518,7 +518,10 @@ public class NoteBlockMechanicListener implements Listener {
             target.setBlockData(oldData);
             BlockHelpers.correctAllBlockStates(placedAgainst, player, hand, face, item, newData);
         }
-        if (VersionUtil.isPaperServer()) target.getWorld().sendGameEvent(player, GameEvent.BLOCK_PLACE, target.getLocation().toVector());
+        if (VersionUtil.isPaperServer())
+            Bukkit.getRegionScheduler().run(OraxenPlugin.get(), target.getLocation(), (task) -> {
+                target.getWorld().sendGameEvent(player, GameEvent.BLOCK_PLACE, target.getLocation().toVector());
+            });
     }
 
     // Used to determine what instrument to use when playing a note depending on below block

@@ -168,7 +168,12 @@ public class OraxenFurniture {
             if (storage != null && (storage.isStorage() || storage.isShulker()))
                 storage.dropStorageContent(mechanic, baseEntity);
 
-            if (VersionUtil.isPaperServer()) baseEntity.getWorld().sendGameEvent(player, GameEvent.BLOCK_DESTROY, baseEntity.getLocation().toVector());
+            if (VersionUtil.isPaperServer()) {
+                Entity finalBaseEntity = baseEntity;
+                baseEntity.getScheduler().run(OraxenPlugin.get(), (task) -> {
+                    finalBaseEntity.getWorld().sendGameEvent(player, GameEvent.BLOCK_DESTROY, finalBaseEntity.getLocation().toVector());
+                }, null);
+            }
         }
 
         if (mechanic.hasBarriers())
@@ -212,7 +217,12 @@ public class OraxenFurniture {
             StorageMechanic storage = mechanic.getStorage();
             if (storage != null && (storage.isStorage() || storage.isShulker()))
                 storage.dropStorageContent(mechanic, baseEntity);
-            if (VersionUtil.isPaperServer()) baseEntity.getWorld().sendGameEvent(player, GameEvent.BLOCK_DESTROY, baseEntity.getLocation().toVector());
+            if (VersionUtil.isPaperServer()) {
+                Entity finalBaseEntity = baseEntity;
+                baseEntity.getScheduler().run(OraxenPlugin.get(), (task) -> {
+                    finalBaseEntity.getWorld().sendGameEvent(player, GameEvent.BLOCK_DESTROY, finalBaseEntity.getLocation().toVector());
+                }, null);
+            }
         }
 
         // Check if the mechanic or the baseEntity has barriers tied to it
