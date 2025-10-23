@@ -42,10 +42,14 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.RayTraceResult;
 
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import static io.th0rgal.oraxen.mechanics.provided.gameplay.furniture.FurnitureMechanic.rotationToYaw;
 
 public class FurnitureListener implements Listener {
+
+    private final NamespacedKey hFields = new NamespacedKey("hypingfields", "hfields_crop"); // HFields namespace
 
     public FurnitureListener() {
         if (OraxenPlugin.get().getPacketAdapter().isEnabled())
@@ -289,13 +293,11 @@ public class FurnitureListener implements Listener {
             return;
         boolean allowedBreak = ProtectionLib.canBreak(player, entity.getLocation());
         if (!allowedBreak) {
-            Location check = entity.getLocation().getBlock().getLocation();
-            try {
-                Class<?> fmClass = Class.forName("fr.kotlini.hypingfields.manager.FieldsManager");
-                Object fm = fmClass.getMethod("getInstance").invoke(null);
-                Object field = fmClass.getMethod("getFieldByLocation", org.bukkit.Location.class).invoke(fm, check);
-                if (field != null) allowedBreak = true;
-            } catch (Throwable ignored) {}
+            PersistentDataContainer entityPDC = entity.getPersistentDataContainer();
+
+            if (entityPDC.has(hFields)) {
+                allowedBreak = true;
+            }
         }
         if (!allowedBreak)
             return;
