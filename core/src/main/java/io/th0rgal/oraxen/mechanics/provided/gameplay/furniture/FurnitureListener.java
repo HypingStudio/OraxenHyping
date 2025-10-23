@@ -209,7 +209,9 @@ public class FurnitureListener implements Listener {
             item.setAmount(item.getAmount() - 1);
         event.setUseInteractedBlock(Event.Result.DENY);
         if (VersionUtil.isPaperServer())
-            baseEntity.getWorld().sendGameEvent(player, GameEvent.BLOCK_PLACE, baseEntity.getLocation().toVector());
+            baseEntity.getScheduler().run(OraxenPlugin.get(), (task) -> {
+                baseEntity.getWorld().sendGameEvent(player, GameEvent.BLOCK_PLACE, baseEntity.getLocation().toVector());
+            }, null);
     }
 
     private Block getTarget(Block placedAgainst, BlockFace blockFace) {
