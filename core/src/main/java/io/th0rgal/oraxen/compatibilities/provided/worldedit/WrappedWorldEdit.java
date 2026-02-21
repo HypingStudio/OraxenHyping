@@ -19,7 +19,8 @@ public class WrappedWorldEdit {
     public static boolean loaded;
 
     public static void init() {
-        loaded = PluginUtils.isEnabled("WorldEdit") || PluginUtils.isEnabled("FastAsyncWorldEdit");
+        loaded = false;
+//        loaded = PluginUtils.isEnabled("WorldEdit") || PluginUtils.isEnabled("FastAsyncWorldEdit");
     }
 
     public static void registerParser() {
