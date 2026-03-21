@@ -76,7 +76,12 @@ public class BreakerSystem {
             } final EnumWrappers.PlayerDigType type = tempType;
 
             final BlockPosition pos = dataTemp.getValues().getFirst();
+            // Hyping Start - Restrict packet distance to player
+            Location pLoc = player.getLocation();
+            if (pos.toVector().distanceSquared(pLoc.toVector()) > (10 * 10)) return;
+            // Hyping End
             final World world = player.getWorld();
+            if (!world.isChunkLoaded(pos.getX() >> 4, pos.getZ() >> 4)) return; // Hyping - Check chunk loaded
             final Block block = world.getBlockAt(pos.getX(), pos.getY(), pos.getZ());
             final Location location = block.getLocation();
             final BlockFace blockFace = dataDirection.size() > 0 ?
