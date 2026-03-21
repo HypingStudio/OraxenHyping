@@ -78,7 +78,11 @@ public class BreakerSystem {
             final BlockPosition pos = dataTemp.getValues().getFirst();
             // Hyping Start - Restrict packet distance to player
             Location pLoc = player.getLocation();
-            if (pos.toVector().distanceSquared(pLoc.toVector()) > (10 * 10)) return;
+            if (pos.toVector().distanceSquared(pLoc.toVector()) > (10 * 10)) {
+                // log player warning
+                OraxenPlugin.get().getLogger().warning("Player " + player.getName() + " sent a BLOCK_DIG packet for a block more than 10 blocks away. Ignoring packet.");
+                return;
+            }
             // Hyping End
             final World world = player.getWorld();
             if (!world.isChunkLoaded(pos.getX() >> 4, pos.getZ() >> 4)) return; // Hyping - Check chunk loaded
