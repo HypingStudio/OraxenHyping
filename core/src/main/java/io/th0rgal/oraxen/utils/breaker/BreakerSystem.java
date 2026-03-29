@@ -55,6 +55,7 @@ public class BreakerSystem {
     public static final List<HardnessModifier> MODIFIERS = new ArrayList<>();
     private final Map<Location, fr.euphyllia.energie.model.Scheduler> breakerPerLocation = new HashMap<>();
     private final Map<Location, fr.euphyllia.energie.model.SchedulerTaskInter> breakerPlaySound = new HashMap<>();
+    private static long lastTooFarWarning = 0; // Hyping - Restrict packet distance to player (warning cooldown)
     private final PacketAdapter listener = new PacketAdapter(OraxenPlugin.get(),
             ListenerPriority.LOW, PacketType.Play.Client.BLOCK_DIG) {
         @Override
@@ -79,8 +80,12 @@ public class BreakerSystem {
             // Hyping Start - Restrict packet distance to player
             Location pLoc = player.getLocation();
             if (pos.toVector().distanceSquared(pLoc.toVector()) > (10 * 10)) {
-                // log player warning
-                OraxenPlugin.get().getLogger().warning("Player " + player.getName() + " sent a BLOCK_DIG packet for a block more than 10 blocks away. Ignoring packet.");
+                // log player warning with cooldown
+                long now = System.currentTimeMillis();
+                if (lastTooFarWarning - now > 10_000) {
+                    lastTooFarWarning = now;
+                    OraxenPlugin.get().getLogger().warning("Player " + player.getName() + " sent a BLOCK_DIG packet for a block more than 10 blocks away. Ignoring packet.");
+                }
                 return;
             }
             // Hyping End
