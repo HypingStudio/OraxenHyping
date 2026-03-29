@@ -10,7 +10,7 @@ plugins {
     id("xyz.jpenilla.run-paper") version "2.3.1"
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0" // Generates plugin.yml
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.11" apply false
-    id("io.github.goooler.shadow") version "8.1.8"
+    id("com.gradleup.shadow") version "9.4.0"
 }
 
 class NMSVersion(val nmsVersion: String, val serverVersion: String)
@@ -51,7 +51,7 @@ allprojects {
         maven("https://libraries.minecraft.net/") // Minecraft repo (commodore)
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") // PlaceHolderAPI
         maven("https://maven.elmakers.com/repository/") // EffectLib
-        maven("https://hub.jeff-media.com/nexus/repository/jeff-media-public/") // CustomBlockData
+//        maven("https://hub.jeff-media.com/nexus/repository/jeff-media-public/") // CustomBlockData
         maven("https://repo.triumphteam.dev/snapshots") // actions-code, actions-spigot
         maven("https://mvn.lumine.io/repository/maven-public/") { metadataSources { artifact() } }// MythicMobs
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots") // commandAPI snapshots
