@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
 import java.util.List;
 
 public enum Settings {
@@ -91,47 +92,47 @@ public enum Settings {
     HIDE_TABLIST_BACKGROUND("Misc.hide_tablist_background"),
 
     //Pack
-    GENERATE("Pack.generation.generate"),
-    EXCLUDED_FILE_EXTENSIONS("Pack.generation.excluded_file_extensions"),
-    FIX_FORCE_UNICODE_GLYPHS("Pack.generation.fix_force_unicode_glyphs"),
-    VERIFY_PACK_FILES("Pack.generation.verify_pack_files"),
-    GENERATE_ATLAS_FILE("Pack.generation.atlas.generate"),
-    TEXTURE_SLICER("Pack.generation.texture_slicer"),
-    EXCLUDE_MALFORMED_ATLAS("Pack.generation.atlas.exclude_malformed_from_atlas"),
-    ATLAS_GENERATION_TYPE("Pack.generation.atlas.type"),
-    GENERATE_MODEL_BASED_ON_TEXTURE_PATH("Pack.generation.auto_generated_models_follow_texture_path"),
-    COMPRESSION("Pack.generation.compression"),
-    PROTECTION("Pack.generation.protection"),
-    COMMENT("Pack.generation.comment"),
-    MERGE_DUPLICATE_FONTS("Pack.import.merge_duplicate_fonts"),
-    MERGE_DUPLICATES("Pack.import.merge_duplicates"),
-    RETAIN_CUSTOM_MODEL_DATA("Pack.import.retain_custom_model_data"),
-    MERGE_ITEM_MODELS("Pack.import.merge_item_base_models"),
+    GENERATE(ConfigType.PACK, "generation.generate"),
+    EXCLUDED_FILE_EXTENSIONS(ConfigType.PACK, "generation.excluded_file_extensions"),
+    FIX_FORCE_UNICODE_GLYPHS(ConfigType.PACK, "generation.fix_force_unicode_glyphs"),
+    VERIFY_PACK_FILES(ConfigType.PACK, "generation.verify_pack_files"),
+    GENERATE_ATLAS_FILE(ConfigType.PACK, "generation.atlas.generate"),
+    TEXTURE_SLICER(ConfigType.PACK, "generation.texture_slicer"),
+    EXCLUDE_MALFORMED_ATLAS(ConfigType.PACK, "generation.atlas.exclude_malformed_from_atlas"),
+    ATLAS_GENERATION_TYPE(ConfigType.PACK, "generation.atlas.type"),
+    GENERATE_MODEL_BASED_ON_TEXTURE_PATH(ConfigType.PACK, "generation.auto_generated_models_follow_texture_path"),
+    COMPRESSION(ConfigType.PACK, "generation.compression"),
+    PROTECTION(ConfigType.PACK, "generation.protection"),
+    COMMENT(ConfigType.PACK, "generation.comment"),
+    MERGE_DUPLICATE_FONTS(ConfigType.PACK, "import.merge_duplicate_fonts"),
+    MERGE_DUPLICATES(ConfigType.PACK, "import.merge_duplicates"),
+    RETAIN_CUSTOM_MODEL_DATA(ConfigType.PACK, "import.retain_custom_model_data"),
+    MERGE_ITEM_MODELS(ConfigType.PACK, "import.merge_item_base_models"),
 
-    UPLOAD_TYPE("Pack.upload.type"),
-    UPLOAD("Pack.upload.enabled"),
-    UPLOAD_OPTIONS("Pack.upload.options"),
+    UPLOAD_TYPE(ConfigType.PACK, "upload.type"),
+    UPLOAD(ConfigType.PACK, "upload.enabled"),
+    UPLOAD_OPTIONS(ConfigType.PACK, "upload.options"),
 
-    POLYMATH_SERVER("Pack.upload.polymath.server"),
-    POLYMATH_SECRET("Pack.upload.polymath.secret"),
+    POLYMATH_SERVER(ConfigType.PACK, "upload.polymath.server"),
+    POLYMATH_SECRET(ConfigType.PACK, "upload.polymath.secret"),
 
-    SEND_PACK("Pack.dispatch.send_pack"),
-    SEND_ON_RELOAD("Pack.dispatch.send_on_reload"),
-    SEND_PACK_DELAY("Pack.dispatch.delay"),
-    SEND_PACK_MANDATORY("Pack.dispatch.mandatory"),
-    SEND_PACK_PROMPT("Pack.dispatch.prompt"),
-    SEND_JOIN_MESSAGE("Pack.dispatch.join_message.enabled"),
-    JOIN_MESSAGE_DELAY("Pack.dispatch.join_message.delay"),
+    SEND_PACK(ConfigType.PACK, "dispatch.send_pack"),
+    SEND_ON_RELOAD(ConfigType.PACK, "dispatch.send_on_reload"),
+    SEND_PACK_DELAY(ConfigType.PACK, "dispatch.delay"),
+    SEND_PACK_MANDATORY(ConfigType.PACK, "dispatch.mandatory"),
+    SEND_PACK_PROMPT(ConfigType.PACK, "dispatch.prompt"),
+    SEND_JOIN_MESSAGE(ConfigType.PACK, "dispatch.join_message.enabled"),
+    JOIN_MESSAGE_DELAY(ConfigType.PACK, "dispatch.join_message.delay"),
 
-    RECEIVE_ENABLED("Pack.receive.enabled"),
-    RECEIVE_ALLOWED_ACTIONS("Pack.receive.accepted.actions"),
-    RECEIVE_LOADED_ACTIONS("Pack.receive.loaded.actions"),
-    RECEIVE_FAILED_ACTIONS("Pack.receive.failed_download.actions"),
-    RECEIVE_DENIED_ACTIONS("Pack.receive.denied.actions"),
-    RECEIVE_FAILED_RELOAD_ACTIONS("Pack.receive.failed_reload.actions"),
-    RECEIVE_DOWNLOADED_ACTIONS("Pack.receive.downloaded.actions"),
-    RECEIVE_INVALID_URL_ACTIONS("Pack.receive.invalid_url.actions"),
-    RECEIVE_DISCARDED_ACTIONS("Pack.receive.discarded.actions"),
+    RECEIVE_ENABLED(ConfigType.PACK, "receive.enabled"),
+    RECEIVE_ALLOWED_ACTIONS(ConfigType.PACK, "receive.accepted.actions"),
+    RECEIVE_LOADED_ACTIONS(ConfigType.PACK, "receive.loaded.actions"),
+    RECEIVE_FAILED_ACTIONS(ConfigType.PACK, "receive.failed_download.actions"),
+    RECEIVE_DENIED_ACTIONS(ConfigType.PACK, "receive.denied.actions"),
+    RECEIVE_FAILED_RELOAD_ACTIONS(ConfigType.PACK, "receive.failed_reload.actions"),
+    RECEIVE_DOWNLOADED_ACTIONS(ConfigType.PACK, "receive.downloaded.actions"),
+    RECEIVE_INVALID_URL_ACTIONS(ConfigType.PACK, "receive.invalid_url.actions"),
+    RECEIVE_DISCARDED_ACTIONS(ConfigType.PACK, "receive.discarded.actions"),
 
 
     // Inventory
@@ -143,9 +144,15 @@ public enum Settings {
     ORAXEN_INV_PREVIOUS_ICON("oraxen_inventory.previous_page_icon"),
     ORAXEN_INV_EXIT("oraxen_inventory.exit_icon");
 
+    private final ConfigType configType;
     private final String path;
 
     Settings(String path) {
+        this(ConfigType.SETTINGS, path);
+    }
+
+    Settings(ConfigType configType, String path) {
+        this.configType = configType;
         this.path = path;
     }
 
@@ -154,16 +161,16 @@ public enum Settings {
     }
 
     public Object getValue() {
-        return OraxenPlugin.get().getConfigsManager().getSettings().get(path);
+        return getConfig().get(path);
     }
     public void setValue(Object value) { setValue(value, true); }
     public void setValue(Object value, boolean save) {
-        YamlConfiguration settingFile = OraxenPlugin.get().getConfigsManager().getSettings();
-        settingFile.set(path, value);
+        YamlConfiguration configuration = getConfig();
+        configuration.set(path, value);
         try {
-            if (save) settingFile.save(OraxenPlugin.get().getDataFolder().toPath().resolve("settings.yml").toFile());
+            if (save) configuration.save(getFile());
         } catch (Exception e) {
-            Logs.logError("Failed to apply changes to settings.yml");
+            Logs.logError("Failed to apply changes to " + getFile().getName());
         }
     }
 
@@ -181,11 +188,30 @@ public enum Settings {
     }
 
     public List<String> toStringList() {
-        return OraxenPlugin.get().getConfigsManager().getSettings().getStringList(path);
+        return getConfig().getStringList(path);
     }
 
     public ConfigurationSection toConfigSection() {
-        return OraxenPlugin.get().getConfigsManager().getSettings().getConfigurationSection(path);
+        return getConfig().getConfigurationSection(path);
+    }
+
+    private YamlConfiguration getConfig() {
+        return switch (configType) {
+            case PACK -> OraxenPlugin.get().getConfigsManager().getPack();
+            case SETTINGS -> OraxenPlugin.get().getConfigsManager().getSettings();
+        };
+    }
+
+    private File getFile() {
+        return switch (configType) {
+            case PACK -> OraxenPlugin.get().getConfigsManager().getPackFile();
+            case SETTINGS -> OraxenPlugin.get().getConfigsManager().getSettingsFile();
+        };
+    }
+
+    private enum ConfigType {
+        SETTINGS,
+        PACK
     }
 
 }

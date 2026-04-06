@@ -269,7 +269,7 @@ public class DuplicationHandler {
             Logs.logWarning("Duplicate file detected: <blue>" + name + "</blue> - Attempting to migrate it");
             if (!Settings.MERGE_DUPLICATES.toBool()) {
                 Logs.logError("Not attempting to migrate duplicate file as <#22b14c>"
-                        + Settings.MERGE_DUPLICATES.getPath() + "</#22b14c> is disabled in settings.yml", true);
+                        + Settings.MERGE_DUPLICATES.getPath() + "</#22b14c> is disabled in pack.yml", true);
             } else if (attemptToMigrateDuplicate(name)) {
                 Logs.logSuccess("Duplicate file fixed:<blue> " + name);
                 try {

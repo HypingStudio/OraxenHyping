@@ -8,6 +8,8 @@ import dev.jorel.commandapi.arguments.TextArgument;
 import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.config.Message;
 import io.th0rgal.oraxen.config.ResourcesManager;
+import io.th0rgal.oraxen.pack.dispatch.PackSender;
+import io.th0rgal.oraxen.pack.upload.hosts.HostingProvider;
 import io.th0rgal.oraxen.utils.AdventureUtils;
 import org.bukkit.entity.Player;
 
@@ -33,9 +35,20 @@ public class PackCommand {
                 .withPermission("oraxen.command.pack.send")
                 .withOptionalArguments(new EntitySelectorArgument.ManyPlayers("targets"))
                 .executes((sender, args) -> {
+                    if (OraxenPlugin.get().getUploadManager() == null) {
+                        Message.PACK_NOT_UPLOADED.send(sender);
+                        return;
+                    }
+
+                    PackSender packSender = OraxenPlugin.get().getUploadManager().getSender();
+                    if (packSender == null) {
+                        Message.PACK_NOT_UPLOADED.send(sender);
+                        return;
+                    }
+
                     final Collection<Player> targets = (Collection<Player>) args.getOptional("targets").orElse(sender instanceof Player ? sender : null);
                     if (targets != null) for (final Player target : targets)
-                        OraxenPlugin.get().getUploadManager().getSender().sendPack(target);
+                        packSender.sendPack(target);
                 });
     }
 
@@ -43,10 +56,21 @@ public class PackCommand {
         return new CommandAPICommand("msg")
                 .withOptionalArguments(new EntitySelectorArgument.ManyPlayers("targets"))
                 .executes((sender, args) -> {
+                    if (OraxenPlugin.get().getUploadManager() == null) {
+                        Message.PACK_NOT_UPLOADED.send(sender);
+                        return;
+                    }
+
+                    HostingProvider hostingProvider = OraxenPlugin.get().getUploadManager().getHostingProvider();
+                    if (hostingProvider == null || hostingProvider.getPackURL() == null) {
+                        Message.PACK_NOT_UPLOADED.send(sender);
+                        return;
+                    }
+
                     final Collection<Player> targets = (Collection<Player>) args.getOptional("targets").orElse(sender instanceof Player ? sender : null);
                     if (targets != null) for (final Player target : targets)
                         Message.COMMAND_JOIN_MESSAGE.send(target, AdventureUtils.tagResolver("pack_url",
-                                (OraxenPlugin.get().getUploadManager().getHostingProvider().getPackURL())));
+                                hostingProvider.getPackURL()));
                 });
     }
 

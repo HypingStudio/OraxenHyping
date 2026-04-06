@@ -57,13 +57,6 @@ public class ModelGenerator {
             }
         }
 
-        if (oraxenMeta.hasPullingTextures()) PredicatesGenerator.generatePullingModels(oraxenMeta);
-        if (oraxenMeta.hasBlockingTexture()) PredicatesGenerator.generateBlockingModels(oraxenMeta);
-        if (oraxenMeta.hasChargedTexture()) PredicatesGenerator.generateChargedModels(oraxenMeta);
-        if (oraxenMeta.hasCastTexture()) PredicatesGenerator.generateCastModels(oraxenMeta);
-        if (oraxenMeta.hasFireworkModel()) PredicatesGenerator.generateFireworkModels(oraxenMeta);
-        if (oraxenMeta.hasDamagedModels()) PredicatesGenerator.generateDamageModels(oraxenMeta);
-
         json.add("textures", textures);
 
     }

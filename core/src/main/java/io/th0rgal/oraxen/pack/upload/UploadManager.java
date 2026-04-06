@@ -17,6 +17,7 @@ import io.th0rgal.oraxen.utils.logs.Logs;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,6 +48,18 @@ public class UploadManager {
 
     public PackSender getSender() {
         return packSender;
+    }
+
+    public void shutdown() {
+        if (packSender != null) {
+            packSender.unregister();
+            packSender = null;
+        }
+
+        if (receiver != null) {
+            HandlerList.unregisterAll(receiver);
+            receiver = null;
+        }
     }
 
     public void uploadAsyncAndSendToPlayers(final ResourcePack resourcePack, final boolean updatePackSender, final boolean isReload) {

@@ -29,12 +29,14 @@ public class ConfigsManager {
     private final JavaPlugin plugin;
     private final YamlConfiguration defaultMechanics;
     private final YamlConfiguration defaultSettings;
+    private final YamlConfiguration defaultPack;
     private final YamlConfiguration defaultFont;
     private final YamlConfiguration defaultSound;
     private final YamlConfiguration defaultLanguage;
     private final YamlConfiguration defaultHud;
     private YamlConfiguration mechanics;
     private YamlConfiguration settings;
+    private YamlConfiguration pack;
     private YamlConfiguration font;
     private YamlConfiguration sound;
     private YamlConfiguration language;
@@ -43,11 +45,13 @@ public class ConfigsManager {
     private File glyphsFolder;
     private File schematicsFolder;
     private File gesturesFolder;
+    private File wingsFolder;
 
     public ConfigsManager(JavaPlugin plugin) {
         this.plugin = plugin;
         defaultMechanics = extractDefault("mechanics.yml");
         defaultSettings = extractDefault("settings.yml");
+        defaultPack = extractDefault("pack.yml");
         defaultFont = extractDefault("font.yml");
         defaultSound = extractDefault("sound.yml");
         defaultLanguage = extractDefault("languages/english.yml");
@@ -64,6 +68,14 @@ public class ConfigsManager {
 
     public File getSettingsFile() {
         return new File(plugin.getDataFolder(), "settings.yml");
+    }
+
+    public YamlConfiguration getPack() {
+        return pack != null ? pack : defaultPack;
+    }
+
+    public File getPackFile() {
+        return new File(plugin.getDataFolder(), "pack.yml");
     }
 
     public YamlConfiguration getLanguage() {
@@ -86,6 +98,18 @@ public class ConfigsManager {
         return schematicsFolder;
     }
 
+    public File getGesturesFolder() {
+        return gesturesFolder;
+    }
+
+    public File getGlyphsFolder() {
+        return glyphsFolder;
+    }
+
+    public File getWingsFolder() {
+        return wingsFolder;
+    }
+
     private YamlConfiguration extractDefault(String source) {
         InputStreamReader inputStreamReader = new InputStreamReader(plugin.getResource(source));
         try {
@@ -104,6 +128,8 @@ public class ConfigsManager {
         ResourcesManager tempManager = new ResourcesManager(OraxenPlugin.get());
         mechanics = validate(tempManager, "mechanics.yml", defaultMechanics);
         settings = validate(tempManager, "settings.yml", defaultSettings);
+        pack = validate(tempManager, "pack.yml", defaultPack);
+        migratePackSettings();
         font = validate(tempManager, "font.yml", defaultFont);
         hud = validate(tempManager, "hud.yml", defaultHud);
         sound = validate(tempManager, "sound.yml", defaultSound);
@@ -127,6 +153,11 @@ public class ConfigsManager {
             if (Settings.GENERATE_DEFAULT_CONFIGS.toBool())
                 tempManager.extractConfigsInFolder("glyphs", "yml");
             else tempManager.extractConfiguration("glyphs/interface.yml");
+        }
+
+        wingsFolder = new File(plugin.getDataFolder(), "wings");
+        if (!wingsFolder.exists()) {
+            wingsFolder.mkdirs();
         }
 
         // check schematicsFolder
@@ -174,6 +205,94 @@ public class ConfigsManager {
                 if (Settings.DEBUG.toBool()) e.printStackTrace();
             }
         return configuration;
+    }
+
+    private void migratePackSettings() {
+        boolean settingsChanged = normalizeLegacyPackSettings();
+        boolean packChanged = false;
+        if (settings.contains("Pack")) {
+            packChanged = copyConfigurationSection(settings, "Pack", pack, "", shouldOverwritePackSection(""));
+            settings.set("Pack", null);
+            settingsChanged = true;
+        }
+
+        if (settingsChanged) saveConfiguration(settings, getSettingsFile());
+        if (packChanged) saveConfiguration(pack, getPackFile());
+    }
+
+    private boolean normalizeLegacyPackSettings() {
+        boolean updated = false;
+        updated |= moveLegacySetting("Pack.dispatch.send_pack_advanced.mandatory", "Pack.dispatch.mandatory");
+        updated |= moveLegacySetting("Pack.dispatch.send_pack_advanced.message", "Pack.dispatch.prompt");
+        updated |= moveLegacySetting("Pack.generation.generate_atlas_file", "Pack.generation.atlas.generate");
+        updated |= moveLegacySetting("Pack.generation.armor_resolution", "CustomArmor.shader_settings.armor_resolution");
+        updated |= moveLegacySetting("Pack.generation.animated_armor_framerate", "CustomArmor.shader_settings.animated_armor_framerate");
+        updated |= moveLegacySetting("Pack.generation.generate_armor_shader_files", "CustomArmor.shader_settings.generate_armor_shader_files");
+        updated |= moveLegacySetting("Pack.generation.generate_custom_armor_textures", "CustomArmor.shader_settings.generate_custom_armor_textures");
+        updated |= moveLegacySetting("Pack.generation.automatically_generate_shader_compatible_armor", "CustomArmor.shader_settings.generate_shader_compatible_armor");
+        updated |= moveLegacySetting("Pack.import.merge_font_files", "Pack.import.merge_duplicate_fonts");
+        updated |= removeLegacySetting("Pack.dispatch.invulnerable_during_pack_loading");
+        updated |= removeLegacySetting("Pack.generation.attempt_to_migrate_duplicates");
+        updated |= removeLegacySetting("Pack.dispatch.send_pack_advanced");
+        return updated;
+    }
+
+    private boolean moveLegacySetting(String oldPath, String newPath) {
+        if (!settings.contains(oldPath)) return false;
+        if (!settings.contains(newPath)) settings.set(newPath, settings.get(oldPath));
+        settings.set(oldPath, null);
+        return true;
+    }
+
+    private boolean removeLegacySetting(String path) {
+        if (!settings.contains(path)) return false;
+        settings.set(path, null);
+        return true;
+    }
+
+    private boolean shouldOverwritePackSection(String path) {
+        ConfigurationSection currentSection = path.isEmpty() ? pack : pack.getConfigurationSection(path);
+        if (currentSection == null) return true;
+        ConfigurationSection defaultSection = path.isEmpty() ? defaultPack : defaultPack.getConfigurationSection(path);
+        if (defaultSection == null) return false;
+        return Objects.equals(currentSection.getValues(true), defaultSection.getValues(true));
+    }
+
+    private boolean copyConfigurationSection(YamlConfiguration source, String sourcePath, YamlConfiguration target,
+                                             String targetPath, boolean overwrite) {
+        ConfigurationSection sourceSection = source.getConfigurationSection(sourcePath);
+        if (sourceSection == null) {
+            if (!source.contains(sourcePath) || (!overwrite && hasCustomPackValue(targetPath))) return false;
+            Object sourceValue = source.get(sourcePath);
+            if (Objects.equals(target.get(targetPath), sourceValue)) return false;
+            target.set(targetPath, sourceValue);
+            return true;
+        }
+
+        boolean updated = false;
+        for (String key : sourceSection.getKeys(true)) {
+            if (sourceSection.isConfigurationSection(key)) continue;
+            String destinationPath = targetPath.isEmpty() ? key : targetPath + "." + key;
+            if (!overwrite && hasCustomPackValue(destinationPath)) continue;
+            Object sourceValue = sourceSection.get(key);
+            if (Objects.equals(target.get(destinationPath), sourceValue)) continue;
+            target.set(destinationPath, sourceValue);
+            updated = true;
+        }
+        return updated;
+    }
+
+    private boolean hasCustomPackValue(String path) {
+        return pack.contains(path) && !Objects.equals(pack.get(path), defaultPack.get(path));
+    }
+
+    private void saveConfiguration(YamlConfiguration configuration, File file) {
+        try {
+            configuration.save(file);
+        } catch (IOException e) {
+            Logs.logError("Failed to save updated configuration file: " + file.getName());
+            if (Settings.DEBUG.toBool()) e.printStackTrace();
+        }
     }
 
     // Skip optional keys and subkeys

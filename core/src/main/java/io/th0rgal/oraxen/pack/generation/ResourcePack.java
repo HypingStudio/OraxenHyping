@@ -169,14 +169,14 @@ public class ResourcePack {
             EventUtils.callEvent(event);
             ZipUtils.writeZipFile(pack, event.getOutput());
 
-            UploadManager uploadManager = OraxenPlugin.get().getUploadManager();
-            if (uploadManager != null) { // If the uploadManager isnt null, this was triggered by a pack-reload
-                uploadManager.uploadAsyncAndSendToPlayers(OraxenPlugin.get().getResourcePack(), true, true);
-            } else { // Otherwise this is was triggered on server-startup
-                uploadManager = new UploadManager(OraxenPlugin.get());
-                OraxenPlugin.get().setUploadManager(uploadManager);
-                uploadManager.uploadAsyncAndSendToPlayers(OraxenPlugin.get().getResourcePack(), false, false);
-            }
+            UploadManager previousUploadManager = OraxenPlugin.get().getUploadManager();
+            boolean isReload = previousUploadManager != null;
+            if (previousUploadManager != null)
+                previousUploadManager.shutdown();
+
+            UploadManager uploadManager = new UploadManager(OraxenPlugin.get());
+            OraxenPlugin.get().setUploadManager(uploadManager);
+            uploadManager.uploadAsyncAndSendToPlayers(OraxenPlugin.get().getResourcePack(), false, isReload);
         });
     }
 
@@ -378,6 +378,12 @@ public class ResourcePack {
                 if (oraxenMeta.shouldGenerateModel()) {
                     writeStringToVirtual(modelPath, modelName, new ModelGenerator(oraxenMeta).getJson().toString());
                 }
+
+                if (item.getType() == Material.ELYTRA) {
+                    generateElytraEquipmentJson(itemId, oraxenMeta);
+                    copyWingsTextures();
+                }
+
                 final Map<String, ItemBuilder> items = texturedItems.computeIfAbsent(item.build().getType(),
                         k -> new LinkedHashMap<>());
 
@@ -411,6 +417,45 @@ public class ResourcePack {
             }
         }
         return texturedItems;
+    }
+
+    private void copyWingsTextures() {
+        File wingsSourceFolder = OraxenPlugin.get().getConfigsManager().getWingsFolder();
+        if (!wingsSourceFolder.exists() || !wingsSourceFolder.isDirectory())
+            return;
+
+        File[] imageFiles = wingsSourceFolder.listFiles();
+        if (imageFiles == null)
+            return;
+
+        for (File imageFile : imageFiles) {
+            try {
+                InputStream fis = new FileInputStream(imageFile);
+                addOutputFiles(new VirtualFile(
+                        "assets/oraxen/textures/entity/equipment/wings",
+                        imageFile.getName(),
+                        fis));
+            } catch (FileNotFoundException e) {
+                Logs.logError("Failed to copy wings texture: " + imageFile.getName());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void generateElytraEquipmentJson(String itemId, OraxenMeta oraxenMeta) {
+        String textureName = "oraxen:" + itemId;
+
+        JsonObject equipmentJson = new JsonObject();
+        JsonObject layers = new JsonObject();
+        JsonArray wings = new JsonArray();
+        JsonObject textureEntry = new JsonObject();
+        textureEntry.addProperty("texture", textureName);
+        wings.add(textureEntry);
+        layers.add("wings", wings);
+        equipmentJson.add("layers", layers);
+
+        writeStringToVirtual("assets/oraxen/equipment", itemId + ".json", equipmentJson.toString());
+
     }
 
     @SafeVarargs
@@ -461,7 +506,16 @@ public class ResourcePack {
                 ItemBuilder texturedItem = entry.getValue();
                 OraxenMeta oraxenMeta = texturedItem.getOraxenMeta();
                 if (oraxenMeta.hasPackInfos()) {
-                    final ModelDefinitionGenerator modelDefinitionGenerator = new ModelDefinitionGenerator(oraxenMeta);
+                    if (oraxenMeta.hasPullingModels()) PredicatesGenerator.generatePullingModels(oraxenMeta);
+                    if (oraxenMeta.hasBlockingModel()) PredicatesGenerator.generateBlockingModels(oraxenMeta);
+                    if (oraxenMeta.hasChargedModel()) PredicatesGenerator.generateChargedModels(oraxenMeta);
+                    if (oraxenMeta.hasCastModel()) PredicatesGenerator.generateCastModels(oraxenMeta);
+                    if (oraxenMeta.hasFireworkModel()) PredicatesGenerator.generateFireworkModels(oraxenMeta);
+                    if (oraxenMeta.hasDamagedModels()) PredicatesGenerator.generateDamageModels(oraxenMeta);
+
+
+                    final ModelDefinitionGenerator modelDefinitionGenerator = new ModelDefinitionGenerator(oraxenMeta,
+                            materialEntry.getKey());
                     writeStringToVirtual("assets/oraxen/items/", itemId + ".json",
                             modelDefinitionGenerator.toJSON().toString());
                 }
